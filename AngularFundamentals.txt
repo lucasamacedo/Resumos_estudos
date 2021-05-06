@@ -1,0 +1,4 @@
+app.module.ts vai ser carregado primeiro, e ele importa o app.component.ts, que vai ter seu html e css incorporado.
+Posso importar um componente no html desse app.component.html, para facilitar a vida, e importá-lo no app.module.ts, para se tornar visível para o app component
+Porém, dessa forma, eu precisaria importar cada component, e isso não vale a pena. Assim, eu crio uma pasta photos que vai incluir a pasta photo com meu componente criado, e vou criar na pasta photos o arquivo photos.module.ts, onde vou agrupar todos os components afins, e marcar para 'exports' os elementos que eu desejo ser acessível para quem importá-lo (nesse caso, app componente)
+

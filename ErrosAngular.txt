@@ -1,0 +1,71 @@
+<codigo>
+<mensagem>
+<solução>
+<explicação>
+
+Erro:
+<codigo>
+@Output() aoTransferir = new EventEmitter<any>();
+<mensagem>
+Expected 0 type arguments, but got 1.
+<solução>
+import {EventEmitter} from '@angular/core';
+<explicação>
+Eu tinha usado o auto-import, e ele importou de outro lugar, logo outra função.
+
+----
+<codigo>
+[app.component.ts]
+export class AppComponent {
+  title = 'bytebank';
+  transferencia: any;
+
+  transferir($event: any): void{
+    console.log($event);
+    this.transferencia = $event;
+  }
+}
+[app.component.html]
+<app-nova-transferencia (aoTransferir)="transferir($event)"></app-nova-transferencia>
+
+<p>Valor: {{ transferencia.valor }}</p>
+<p>Destino: {{ transferencia.destino }}</p>
+
+<mensagem>
+ERROR TypeError: Cannot read property 'valor' of undefined
+
+<solução>
+<p>Valor: {{ transferencia?.valor }}</p>
+<p>Destino: {{ transferencia?.destino }}</p>
+
+<explicação>
+Ao declarar, o browser vai ir atrás de ler o conteúdo da variável transferencia, porém ela não está inicializada ainda. Então, uma solução é inicializá-la, ou usar transferencia?.valor, que significa que: se transferencia tiver algum valor, acesse a variável.
+
+------------
+
+<codigo>
+transferencias!: any[];
+
+<mensagem>
+Erro por ser indefinido
+
+<solução>
+transferencias: any[] = [];
+
+<explicação>
+Inicializando o array como vazio, ele não recebe o valor undefined, e posso realizar ações nele tranquilamente.
+
+------------
+
+<codigo>
+
+<mensagem>
+
+
+<solução>
+
+
+<explicação>
+
+
+------------

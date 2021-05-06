@@ -1,0 +1,75 @@
+É recomendado que os atributos da classe sejam declarados dentro de um método, por exemplo:
+export class Cliente{
+    get cpf(){
+        return this._cpf;
+    }
+
+    constructor(nome, cpf){
+        this.nome = nome;
+        this._cpf = cpf;
+    }
+}
+sem a declaração "nome;" no começo da classe
+
+Ao iniciar os campos, por padrão declare como privada, a menos que tu saiba que quer mantê-la de acesso público.
+
+Herança:
+(na classe pai)
+constructor(tipo, ...){
+        ...;
+        this._tipo = tipo;
+    }
+
+Para criar a herança:
+import {Conta} from "./Conta.js"
+export class ContaCorrente extends Conta{...}
+
+Para o JS criar o Conta do "extends conta", para herdar as propriedades, é preciso fazer:
+constructor(cliente, agencia){
+        super(0, cliente, agencia);
+    }
+o super(...) chama o método correspondente da classe pai, nesse caso, chama o construtor de Conta, para criar esse objeto;
+
+Para chamar um método da classe pai, usa-se super.teste(), como no caso de estar dentro do metodo teste() da classe filho.
+
+Para fazer a especialização da classe filha, é apenas sobreescrever o método em questão
+
+metodo privado na classe pai:
+_sacar(){...} - útil para evitar repetição de código na sobrescrita do método da classe filha
+
+Campo privado: Apenas a classe tem acesso;
+Campo protegido: Apenas a classe e quem herda dela tem acesso;
+
+Propriedade constructor
+Na classe, se colocar, dentro do construtor "if(this.constructor == Conta){...} - o código será executado se o construtor chamado estiver criando uma Conta;
+Isso é útil para, por exemplo, avisar ao programador para não criar um objeto do tipo Conta (pai), pois não faz sentido, e seria melhor instanciar as classes filhas (ContaPoupanca, etc).
+
+Como lançar um erro para parar a execução do programa:
+throw new Error("mensagem");
+
+Classe abstrata: tipo de classe em que não pode ser instanciada diretamente, mas podde ser herdada, como por exemplo Conta.
+Como criar uma classe abstrata:
+Em seu construtor:
+
+constructor(saldoInicial, cliente, agencia){
+        if(this.constructor == Conta){
+            throw new Error("Voce nao devia instanciar diretamente uma classe do tipo Conta");
+        }
+}
+
+Posso ter também métodos abstratos, como sacar em conta. Útil quando quero obrigar que as classes filhos sobreescreva o método. Então, se alguém tentar usar o método abstrata da classe pai diretamente, pode ser lançado um erro.
+
+SistemaAutenticacao.login(...); - login é uma função estatica da classe SistemaAutenticacao
+
+Polimorfismo: propriedade dos objetos de tomarem várias formas, ou de receber no método uma classe mais genérica e poder utilizá-la independente de qual classe especifica ela é. Por exemplo:
+static login(funcionario, senha){
+        return funcionario.senha == senha;
+    }
+É polimorfismo pq funciona independente se funcionar é um gerente ou um diretor. Ou seja, várias classes/objetos diferentes sendo tratados da mesma forma, ou que se transforma em várias formas
+
+"autenticar" in autenticar; - Checa se tem um método ou propriedade chamado "autenticar" dentro do objeto autenticar (na região de memória)
+
+return "autenticar" in autenticar && autenticavel.autenticar instanceof Function;
+Vê se tem um metodo/propriedade chamado autenticar no objeto autenticar, e se tiver, ve se ele é um método
+
+Ducky Typing - no polimorfismo, você não se preocupa com o tipo do objeto específico, mas usa um recurso como "ver se ele tem o método chamado abc". A ideia é que não interessa se o objeto é um pato, se ele anda como um pato, fala como um pato, é um pato. Ou seja, nao interessa o tipo dele, e sim o que ele consegue fazer. Usamos ducky tiping acima.

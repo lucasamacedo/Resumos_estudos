@@ -1,0 +1,66 @@
+Criação de Formulários
+
+<form> - Indica os elementos que serão usados para receber informações do usuário via formulário.
+
+<input type=""> - Tag onde o usuário irá entrar com algum dado. Todas tag input tem um tipo
+<input type="text"> - O usuário vai digitar um texto em um campo
+<label> - Etiqueta para o input. As tags <label> e <input> andam sempre juntas.
+
+Adicionando id no input
+<input type="text" id="input-nomesobrenome">
+<label for="input-nomesobrenome"> - Digo que a etiqueta é para o input com o id mencionado. A vantagem disso é que se o usuário clicar no texto do label, o input será selecionado, e ele poderá inserir informações, facilitando sua vida.
+Label e input por padrão possuem o display inline
+
+<input type="submit" value="Enviar formulário"> - Cria um botão para enviar os dados do formulário. O texto do botão é "Enviar formulário".
+
+<textarea> - É um campo onde se passa uma mensagem bem grande, como um campo de enviar mensagem num formulário.
+<textarea cols="30" rows="10"> - Especifica o tamanho padrão desse campo. (provavelmente medido em caracteres)
+
+<input type="radio" name="contato" value="telefone" id="radio-telefone"> - Botão Radio (apenas uma resposta selecionada é aceita). Varios radios com o name="contato" fazem parte do mesmo grupo, assim, apenas um deles pode ser selecionado pelo usuario.
+
+Para não precisar criar um identificador no INPUT e no LABEL, é possivel colocar a tag input dentro do label. Dessa forma:
+<label><input type=""><label>
+
+<input type="checkbox"> - Botão Checkbox, onde mais de uma opção pode ser escolhida pelo usuário.
+
+<CSS>
+form input, form textarea {} - o estilo é aplicado para os dois campos
+
+Hierarquia no CSS: É como se as "forças" dos elementos fossem: inline (style="" no html) infinito, id 100, class 10, tag 1
+Por isso, a recomendação de criar sempre classes para nossos elementos é muito boa: ele não é genérico o suficiente para sempre que mude a tag, ele seja alterado, mas não é tão específico quanto um identificador, cujas mudanças são feitas especificamente para aquele elemento.
+
+<select><option></option></select> - Campo Dropdown para a escolha de uma opção dentre várias. As opções possíveis são representadas peal tag option.
+
+Site: mobileinputtypes.com - Site que mostra como se comporta os diferentes inputs no celular
+Alguns tipos de input:
+<input type="text/email/tel/number/password/date/datetime/month/search">
+
+<input type="" required placeholder=""> - Força o preenchimento do campo pelo usuário
+Required também funciona em outros elementos, como Textarea
+Placeholder exibe um conteúdo preenchidop pelo elemento padrão.
+
+<input type="radio" checked> - Por padrão, esse elemento vai vir marcado ao carregar a página
+
+<fieldset> - Divisão, semelhante à div, mas específica para um grupo de campos referentes a um assunto específico
+<legend> - Título de um <fieldset>
+
+<img src="img.jpg" alt="Logo da loja"> - A propriedade alt serve para adicionar uma descrição à imagem em casos de problemas de visualização (seja porque a imagem não carregou, ou usuário com problemas de visão, por exemplo)
+
+(CSS)
+transition: 1s background; - A transição de estado (por exemplo, se tem um :hover que muda a cor do background, essa propriedade faz com que a mudança seja transicionada, ou seja, não seja abrupta)
+transition: 1s all; - A transição ocorre em todas as propriedades do elemento (tamanho, fonte, etc).
+
+cursor: pointer; - Quando o mouse está emcima do elemento, ele muda para a "mãozinha"
+
+transform: scale(1.2); - Aumenta todo o elemento em 20%. Uma das utilidades é aumentar o elemento enquanto o mouse está emcima dele.
+Há outras propriedades possíveis do transform, como rotate, por exemplo.
+
+<table> - tag para iniciar tabela
+	<tr> - table row, a linha da tabela
+	<td> - table data cell. Célula da tabela
+	<thead> - Cabeçalho da tabela
+		<th> - Celula do <thead>
+	<tbody> - Conteudo da tabela (usa <tr> e <td>)
+	<tfoot> - Rodapé da tablea (também usa <tr> e <td>)
+
+<td colspan="5">Rio de Janeiro</td> - Mescla 5 células daquela tabela.

@@ -1,0 +1,60 @@
+<h1> - Usamos no titulo mais importante, que queremos que seja exibido primeiro pelo navegador. Pode ser até uma imagem, como é o caso do exemplo.
+
+<a href="index.html">link</a> - gera link para a pagina index.html
+
+<nav></nav> - tag para se usar no menu de navegação do site
+
+(css)
+text-transform: uppercase; - Transforma o texto em maiúsculo. É importante usá-lo porque quando se escreve em MAIUSCULO no html, é como se tivesse gritando o texto, e isso está usando errado a etiqueta da internet.
+
+font-weight: bold; - Fonte em negrito. Diferente semanticamente de <strong>, pois esse último é utilizado para dar ênfase no texto, em algo importante.
+
+font-size: 22px; - Tamanho da fonte
+
+text-decoration: none; - Retira a decoração do texto, por exemplo, sublinhado de <a>
+
+margin: 0 0 0 15px; - up, right, down, left
+
+A ordem de referencia dos links do css no html importa, e determina a ordem de execução.
+
+position:static; - Posição estática dos elementos. A posição inicial é no canto superior esquerdo, e a posição final é no canto inferior esquerdo
+
+position:relative; - Posiciona o elemento a partir do seu ponto inicial.
+
+position:absolute; - Posiciona o elemento em qualquer lugar da página.
+
+Quando se usa posição absoluta, a posição do elemento é absoluta em relação à página como um todo. Para ser relativa a um elemento-pai, esse elemento-pai deve ter a posição relativa.
+
+margin: 0 auto; - Utilizado para centralizar horizontalmente um elemento. Auto significa que esse valor sera calculado automaticamente.
+
+(css)
+top: 0; - distância do topo do elemento
+right: 0; - distancia da borda direita do elemento
+
+width: 940px; - largura usada em padrão na web, pois maioria das resoluções é acima disso.
+
+<header> - div semantica do cabeçalho da pagina
+<main> - div semantica que é o conteudo principal da pagina
+<footer> - div semantica do rodape da pagina
+
+Por padrão, o navegador interpreta o tamanho somando as dimensões em % e em pixel. Para não ocorrer isso, e conseguirmos alinhar mais facilmente, usamos:
+(css)
+box-sizing: border-box; - Dessa forma, o espaçamento em pixel está dentro do percentual.
+
+border: 2px solid red;
+border-style: solid/dashed/dotted;
+border-radius: 10px; - arredonda os cantos da borda
+
+text-decoration: underline;
+nav a:hover {} - quando passar o mouse no <a> no <nav>
+nav a:active {} - comportamento de quando o mouse esta sendo clicado
+
+Se eu quero alterar o tamanho da fonte de um elemento, que ja tem um tamanho de fonte escolhido, quando passo o mouse por cima, faço:
+
+.produtos li:hover h2 {} - significa que vou alterar o h2 quando ocorrer produtos li:hover
+
+background: url(""); - Usado para colocar uma imagem de background. Quando usamos uma imagem de fundo, o CSS copia e cola várias vezes essa imagem até preencher todo o espaço destinado a ele, a fim de economizar banda de internet do usuário.
+
+Como adicionar caracteres especiais na página: usando seu código unicode.
+
+O QUE FAZER ANTES DE AVANÇAR PRO PROXIMO CURSO: IMPORTAR O CABEÇALHO E RODAPE PRA HOME E RESOLVER OS CONFLITOS QUE APARECEREM

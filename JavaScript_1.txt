@@ -1,0 +1,63 @@
+No console, para executar o programa (usando node): node arquivo.js
+
+JS É CASE SENSITIVE
+
+console.log("texto"); - imprime "texto" (sem aspas) no console
+const idade = 20; - declaracao da variavel constante idade
+console.log(idade) - imprime no console o valor da variavel idade
+
+Operações aritméticas: +, -, *, /
+
+// - comentários de uma linha
+/* */ - comentários de múltiplas linhas
+
+Não declarar variáveis com
+idade = 20; - Pois assim o tipo da variável será definido subindo de contexto para contexto, de forma dinâmica, e é difícil ter controle das alterações.
+
+parseInt("20"); - Converte a string 20 para inteiro
+console.log("10" / "2"); - Retorna 5, pois o intepretador do JS converte implicitamente para número (float)
+
+console.log("Lucas" / "2") - Retorna NaN
+
+Ambos retornam o mesmo valor
+console.log(nome, sobrenome);
+console.log(nome + " " + sobrenome);
+
+console.log(`Meu nome é ${nome}`); - Permite inserir expressões no texto
+
+Tipos de variáveis
+const = constante
+let = variável
+
+Boas práticas:
+Tentar ter constantes, pois é mais fácil debugar o código
+Atribuir apenas um tipo de dado à variável (não atribuir um texto e depois um inteiro, por exemplo)
+
+Para criar um vetor em JS, usa-se a declaração de orientado a objetos:
+const vetor = new Array(`elem1`, `elem2`); - Adiciona elem1, elem2 na lista usando o construtor da classe Array
+
+Para adicionar um elemento durante a execução do código:
+vetor.push(`elem3`);
+
+vetor.splice(2, 1); - remove 1 elemento a partir do terceiro elemento da lista (contando já o terceiro elemento)
+
+vetor[1]; - acessa o endereço de memoria do segundo elemento do vetor, igual em C
+
+if(){} else{} - estrutura if do JS
+&& e || - operadores AND e OR
+console.log("\n"); - quebra de linha
+while(){} - estrutura while do JS
+
+Debugger: Para ativar, clicar no lado esquerdo do numero da linha para adicionar um Breakpoint (vscode), e para ele realmente parar, deve-se entrar no modo debugger, clicando no inseto com o simbolo de play no lado esquerdo da tela, escolher Run and Debug, e escolher o ambiente Node.js
+
+Opção Continue (F5) - Continua a execução até o próximo Breakpoint
+	Step Over (F10) - Executa a próxima instrução
+
+break; - interrompe a estrutura de repetição associada
+
+Como rodar o Debugger caso precise criar um launch.json:
+Clica para criar esse launch.json.
+Basicamente, o arquivo já vem pronto. Você pode mudar o nome dele para facilitar escolher qual arquivo debuggar (na setinha pra baixo do lado do simbolo de play do debug and run)
+
+for(let i = 0; i < 3; i++){} - Estrutura for do JS
+

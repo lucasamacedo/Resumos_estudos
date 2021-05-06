@@ -1,0 +1,96 @@
+Criar repositório
+Entrar no repositório pelo Git
+git init -> inicia repositório
+git status
+
+Criar um arquivo dentro da pasta
+git add -> inclui esse arquivo para o git monitorar
+
+Para marcar quem commitou por padrao
+git config --local user.name "Seu nome aqui"
+git config --local user.email "seu@email.aqui"
+
+git commit -m "mensagem" -> commit
+
+git log -> lista de commits
+git log --oneline
+git log --graph
+git log -p -> consegue ver as alterações realizadas pelos commits
+
+Como fazer o git ignorar um arquivo:
+Cria um arquivo chamado .gitignore no repositorio
+Escreve o nome dos arquivos a serem ignorados
+
+Criar repositorio remoto
+Dentro do repositorio:
+git init --bare -> cria o repositorio servidor local
+git remote add nome caminho/pasta, exemplo:
+git remote add local D:/Github\ Projetos/Servidor
+
+Criar outro perfil
+Cria outra pasta (mkdir Perfil2 em Github Projetos)
+git clone /d/Github\ Projetos/HTML_CSS/servidor/ projeto -> traz peal primeira vez os dados de um repositorio remoto para o repo local
+
+Sincronizando:
+cd Lucas
+git push local master -> envia pro servidor local as alteraçoes
+Para sincronizar o Perfil2 com o servidor:
+git remote para ver que no repo do Perfil2, o repo remoto se chama origin
+git remote rename origin local -> renomeia
+git pull local master
+
+Como conectar esse repo remoto local com o github:
+entrar no github
+criar um repositorio no github
+Entrar na pasta Lucas
+git remote add origin https://github.com/lucasamacedo/HTML_CSS.git -> adiciona github
+git push origin master -> envia as alterações para o github
+
+git branch titulo -> cria branch
+git branch -> mostra as branches
+git checkout titulo -> vai para a branch titulo
+
+Unindo branches
+git merge titulo -> cria um commit unindo o branch titulo com o branch atual
+Para unir sem criar um commit:
+git rebase titulo -> coloca o master na frente dos commits do titulo
+
+Para resolver conflitos:
+git add
+git merge
+Resolve os conflitos
+git add
+git commit
+
+Desfazendo alterações
+git checkout -- <file> -> descarta mudanças em arquivos modificados antes do add
+git reset HEAD index.html -> descarta depois do add
+git revert <hash do commit> -> cria um commit desfazendo as alterações do commit informado
+
+Deixando para depois:
+git stash
+git stash list -> lista do que tem na stash
+git stash apply 0 + git stash drop -> pega o ultimo estágio da stash e dps retira
+git stash pop -> faz o mesmo q os 2 comandos acima
+
+"Viajar no tempo"
+git checkout <hash> -> fazendo isso, você fica em um estado desanexado do restante. Se realizar commits, eles acabarão sendo perdidos. Para não perde-los, é preciso criar um novo branch:
+git checkout -b novo-branch
+
+git log -n 2 -> mostra apenas os 2 commits mais recentes
+
+Ver diferenças entre commits
+git diff <hash1>..<hash2>
+
+Como criar entregáveis:
+git tag -a v0.1.0 -m "Primeira versão da aplicação"
+git tag -> mostra todas as tags
+Após isso, atualize o servidor com 
+git push local master
+e faça
+git push local v0.1.0
+Após, atualizar o repositorio do github com
+git push origin master
+E por fim, para enviar a tag, faça:
+git push origin v0.1.0
+

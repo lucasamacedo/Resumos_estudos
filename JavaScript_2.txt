@@ -1,0 +1,109 @@
+Programação orientada a objetos no JavaScript
+
+Criar o modelo de classe:
+
+class Cliente{
+	nome;
+	cpf;
+}
+
+Para instanciar a classe:
+const cliente1 = new Cliente();
+
+Atribuir valores:
+cliente1.nome = "Nome";
+Se eu não atribuir um valor a uma variável do cliente1, ela terá o valor padrão undefined
+
+Para adicionar um método na classe:
+
+class ContaCorrente{
+	agencia;
+	saldo;
+
+	sacar(valor){...}
+}
+
+Convenção utilizada: Nome de campos privados começam com #. Exemplo #saldo, dessa forma, não posso alterar seu valor por fora, como cc.saldo = 1000000. O # torna a classe privada.
+
+IMPORTANTE:
+Supondo o objeto cc da classe ContaCorrente acima, se eu fizer
+cc.abc = 10, o JS vai criar o campo abc no objeto cc.
+TOMAR MUITO CUIDADO COM ISSO!
+
+Atributo privado só é visível dentro da classe
+
+Convenção da comunidade: Campos privados começam com _
+
+Retornar valor num método:
+return variavel;
+
+Técnica de Early Return ajuda a melhorar a legibilidade do código, pois evita ifs encadeados:
+depositar(valor){
+	if(valor <= 0) return;
+	if(...) return;
+	this._saldo += valor;
+}
+
+Criar um arquivo que representa uma classe, começa com letra maiúscula: Cliente.js. 
+
+Para importar classes de outros arquivos:
+No arquivo: export class A{}
+Para importar:
+import {Cliente} from "./arquivo.js"
+
+Para fazer essas importações, precisa ser tratado como módulo. Para isso, precisamos mexer no arquivo package.json. 
+Para criar esse arquivo:
+(terminal)
+npm init
+Preenche os campos como nome, descrição, o resto pode deixar em branco
+Após criado o arquivo package.json, adicionar a propriedade "type": "module"
+
+Como adicionar um atributo de uma classe dentro de outra classe:
+<ContaCorrente.js>
+Classe {
+cliente;
+}
+<index.js>
+Cliente c1 = new Client();
+ContaCorrente cc = new ContaCorrente();
+cc.cliente = c1;
+
+É possível passar outros objetos como argumento do método, por exemplo:
+transferir(valor, conta) {...}
+
+undefined - valor que a variável recebe quando é declarada, mas não iniciada
+null - nulo, igual C
+
+if(novoValor instanceof Cliente) - se a variavel é do tipo Cliente
+
+get e set:
+set cliente(a){ if(a instanceof Cliente){} } - para atribuir um cliente, entra nessa função. Se alguem tentar mudar no objeto opr exemplo, conta.cliente = 0, não vai conseguir, por conta do if. O nome é sem _ pois o get é público. Se alguém for mudar o valor da variavel cliente, vai entrar nesse set.
+
+get cliente(){ return this._cliente;} - retorna o cliente
+
+Se o atributo tiver apenas o get, não será possivel alterar seu valor de fora da classe
+
+constructor(a1, a2){...} - Construtor da classe
+
+Construtor de ContaCorrente:
+constructor(cliente, agencia){
+        this.cliente = cliente;
+    }
+onde this.cliente:
+set cliente(novoValor){
+        if(novoValor instanceof Cliente){
+            this._cliente = novoValor;
+        }
+    }
+Ou seja, o construtor consegue usar esse atribuidor da classe
+
+Atributos estáticos: É um atributo da classe abstrata. Se várias instâncias a incrementar, por exemplo, o valor desse atributo estático será a soma de todos esses incrementos. Útil para ter controle do numero de instâncias, por exemplo:
+
+class ContaCorrente{
+    static numeroDeContas = 0;
+
+    constructor(cliente, agencia){
+        ContaCorrente.numeroDeContas++;
+    }
+}
+

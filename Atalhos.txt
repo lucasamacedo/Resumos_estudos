@@ -1,0 +1,6 @@
+Shift+Alt+Down = faz uma cópia da linha atual na linha de baixo
+Alt+Down = troca a linha atual com a de baixo
+Ctrl + Alt = abre vários cursores (para selecionar caracteres abaixo também)
+Ctrl + D = Acha a próxima referência da palavra (usar com uma palavra selecionada)
+
+Ctrl + Shift + J = abre o console (no navegador)

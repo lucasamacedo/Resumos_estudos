@@ -1,0 +1,212 @@
+Olá mundo:
+alert("Olá mundo"); - exibe uma popup no site com a mensagem
+console.log("..."); - mostra a mensagem no console do navegador, ferramenta do desenvolvedor (F12)
+
+Para o navegador identificar que é a linguagem javascript, use a tag <script>
+
+É possível, pelo console do navegador funções javascript
+
+document - representa o dom, todos os elementos da página
+document.querySelector("h1"); - busca os elementos h1
+O script usando document vai conseguir ver até onde foi carregado (começa carregando de cima pra baixo)
+Por isso, é uam boa pratica colocar o <script> no fim do body, após todo o conteudo ter carregado
+
+var titulo = document.querySelector("h1"); - armazena na variavel titulo o "<h1>...</h1>"
+titulo.textContent = essa propriedade retorna o texto contido nesse elemento
+
+Boas práticas:
+
+Procurar classes, ids ou seletores css na QuerySelector, pois assim não fica atrelada às tags ligadas ao conteudo. Dessa forma, se alguém alterar a tag, o script continua selecionando corretamente.
+Exemplo selecionando classe:
+var titulo = document.querySelector(".titulo");
+
+Para importar um arquivo javascript no html, usa-se:
+<script src="caminho/arquivo.js"></script>
+
+Para selecionar mais de um objeto com o querySelector, se usa querySelectorAll. Exemplo:
+objetos = document.querySelectorAll(".teste");
+objetos.length = tamanho da lista de objeto
+objetos[0] = primeiro objeto da lista
+
+Como exibir até 2 casas decimais de um número (arredondando o número):
+variavel.toFixed(2);
+
+Para modificar as propriedades CSS de um objeto (por exemplo, deixar a fonte vermelha):
+paciente.style.color = "red";
+
+Para propriedades com mais de uma palavra, como background-color, usa-se camelCase:
+paciente.style.backgroundColor = "red";
+
+Uma boa prática é não alterar diretamente o estilo da página com o javascript, pois isso é responsabilidade do CSS. Assim, seguir o meio termo de colocar um estilo, colocar uma classe nele. (por exemplo, colocar a classe erro disponivel no CSS). Se faz dessa forma:
+paciente.classList.add("nome"); - classList retorna uma lista de classes daquele objeto, e Add vai adicionar uma nova classe "nome" ao objeto.
+
+Qualquer interação do usuário com a página, nós podemos escutar através de eventos. Então, primeiro encontramos o elemento a ser escutado, depois adicionamos um escutador de eventos:
+var titulo = document.querySelector(".titulo");
+titulo.addEventListener("click", mostraMensagem);
+function mostraMensagem(){...}
+
+Posso também passar uma função anonima (sem nome), do seguinte modo:
+titulo.addEventListener("click", function(){
+	...
+});
+
+O comportamento padrão do html é, toda vez que clicar em um botão dentro de um form, enviar os dados do form para uma outra página. Se não especificar nenhuma pagina em <form>, ele vai apenas limpar o formulário, e recarregar a página (assim, apaga o console também)
+
+Como evitar o comportamento padrão de uma função/elemento (por exemplo, o botão):
+botaoAdicionar.addEventListener("click", function(event){
+	event.preventDefault();
+	console.log("Oi sou botao e fui clicado!");
+	
+});
+
+Para usar a função event.preventDefault(), preciso receber como parâmetro da função o event, que é o que controla o evento de clicar, de recarregar pagina.
+
+Selecionando um form, é possível acessar os inputs dele através do atributo name, dessa forma:
+var form = document.querySelector("#formulario");
+console.log(form.campo-nome);
+
+Para acessar o valor de um campo input:
+form.campo-nome.value;
+
+Agora, para criar um elemento do html no JavaScript, usa-se:
+var nomeTd = document.createElement("td");
+Que cria: <td></td>
+
+nomeTd.textContent = "Teste"; - resulta em:
+<td>Teste</td>
+
+(supondo var pai = document.createElement("tr");
+Para adicionar um elemento como filho de outro elemento:
+pai.appendChild(nomeTd);
+Resulta em:
+<tr><td>Teste</td></tr>
+
+Adicionando essa linha em uma tabela:
+Seja a tabela:
+<tbody id="tabela-pacientes">
+var tabela = document.querySelector("#tabela-pacientes");
+tabela.appendChild(pai);
+
+Uma vantagem do addEventListener é que podemos executar mais de uma função para o mesmo evento. Exemplo:
+botao.addEventListener('click', f1);
+botao.addEventListener('click', f2);
+
+event shortcut - Usamos quando queremos associar apenas uma função ao evento. Dessa forma:
+botao.onclick = f1;
+
+A boa prática é usar addEventListener, mesmo que só seja para apenas uma função associada, pois se no futuro alguém adicionar outra função ao evento, ele não será sobrescrito (ele é sobrescrito com botao.onclick, pois é uma atribuição);
+
+Criando objetos no JavaScript:
+var paciente {
+	nome: "teste",
+	peso: 45
+}
+
+form.reset(); - Limpa os campos do form
+
+Como criar uma lista de objetos em JS:
+var itens = [];
+for(...){
+	var item = {...}
+	itens.push(item);
+}
+
+Declarando arrays no JS:
+var array = [];
+
+Usando foreach:
+array.forEach(function(){...}) - para cada item do meu array, faça essa função
+
+Apagar o conteúdo entre chaves de um objeto (seja um obj = document.createElement("ul") ou com obj = document.querySelector("")
+obj.innerHTML = ""; - innerHTML é todo o conteudo entre as chaves d objeto (por exemplo, tudo entre <ul></ul>)
+
+Como identificar um duplo clique no elemento:
+paciente.addEventListener("dblclick", function(){});
+
+Removendo uma linha de uma tabela ao dar duplo clique na linha:
+
+var pacientes = document.querySelectorAll(".paciente");
+
+pacientes.forEach(function(paciente){
+    paciente.addEventListener("dblclick", function(){
+        this.remove();
+    });
+});
+
+A palavra this se refere ao dono do evento, quem está atrelado ao evento, quem acionou o evento.
+
+EventBubbling - propriedade do JS onde quando se adiciona um EventListener em um elemento, além do proprio elemento escutar esse listener, o pai dele, o pai do pai, etc. Também ouve. A analogia é da bolha do refrigerante, que começa lá embaixo e vai subindo até estourar na superfície.
+
+event.target - retorna que elemento sofreu a ação/disparou o evento. Exemplo:
+tabelaPacientes.addEventListener("dblclick", function(event){
+    console.log(event.target);
+});
+Esse código acima, por exemplo, se uma linha da tabelaPacientes foi clicada, event.target retorna essa linha específica, e não a tabelaPacientes inteira
+Se por acaso queremos obter o pai do target, fazemos:
+event.target.parentNode
+
+Para esperar X milissegundos para fazer uma função paiDoAlvo.remove(), utiliza-se a função setTimeout:
+setTimeout(function(){ paiDoAlvo.remove(); }, 500);
+
+Como adicionar evento ao digitar uma letra num input:
+campoFiltro.addEventListener("input", function(){...});
+
+nome.includes(campoFiltro.value) - ve se campoFiltro.value é substring de nome
+
+Criando RegEx (expressao regular):
+var expressao = new RegExp(stringASerPesquisada, "i"); - a stringASerPesquisada pode ser a expressão também, e "i" significa que não é CaseSensitive.
+Para textar a expressão, buscando se o campo nome atende a esse criterio (ou seja, tem a stringASerPesquisada dentro dele, nesse caso):
+if(expressao.test(nome)){...}
+
+
+Como buscar informações de lista de dados em uma página usando JS:
+
+var xhr = new XMLHttpRequest(); - cria uma requisição HTTP, e o XML é porque ele costumava fazer o transporte de dados do tipo XML. Hoje em dia tem mais modos de transporte de dados.
+Para ensinar esse xhr como fazer as coisas, é necessário configurar ele antes de fazer a requisição, que é o que faremos:
+
+xhr.open("GET", "https://www...."); - open é a função que abre a conexão com o endereço que queremos. "GET" é o tipo de requisição a ser feita. É como se abrissemos uma nova aba, digitassemos esse endereço web.
+
+xhr.send(); - depois de configurado, ele envia a requisição. Ou seja, é como se apertasse Enter após inserir o endereço web no navegador
+
+Mas só isso não retorna os dados. Para isso, é necessário criar um evento para ficar 'escutando' se a resposta já foi carregada. Para adicioanr esse Listener (antes de xhr.send()):
+
+xhr.addEventListener("load", function(){
+	console.log(xhr.responseText); // resposta recebida
+});
+
+var resposta = xhr.responseText;
+console.log(typeof resposta); - retorna o tipo de resposta, que é do tipo string, nesse caso.
+
+A string vista nesse curso é do tipo JSON (JavaScript Object Notation). É um jeito de transportar pela web um formato de dados muito parecido com objetos JavaScript.
+Para transformar essa string em algo mais palpável, como um array de objetos, por exemplo, fazemos:
+
+var pacientes = JSON.parse(resposta); - como tem formato de array, ele retorna um array
+
+Para testar se uma requisição deu certo, usamos xhr.status - Se for 200, deu certo. Se for 404, é o famoso 404 - not found. Nesse caso, com xhr.responseText, há uma descrição breve do erro. Exemplo no erro 404: Cannot GET /urldefeituosa
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+O document é uma variável muito importante do Javascript. Ela contém o DOM ou Document Object Model, que é como o navegador enxerga o HTML utilizado por ele para renderizar a página.
+
+O navegador, ao ler o seu arquivo HTML, cria uma cópia em memória daquele HTML e a partir dessa cópia ele vai desenhando a sua página, colocando as tags e aplicando os estilos. Esta cópia é o que chamamos de DOM uma representação em memória do HTML do seu arquivo, que o navegador usa para desenhar a página, e a variável document é quem contêm o DOM.
+
+Por isso, quando dizemos que com o Javascript nós estamos manipulando o DOM, estamos manipulando o que o navegador renderizou. Então ao trocar algum texto do DOM, o navegador imediatamente desenha novamente aquele texto, pois o DOM é o que o navegador usa para desenhar o seu site.
+
+Outra caracteristica interessante, é que como manipulamos o DOM , quando trocamos um texto de um <h1> ou um estilo de um elemento, na verdade estamos alterando a representação em memória , o que faz com que o arquivo fonte que contêm seu HTML fique intacto!

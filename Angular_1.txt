@@ -1,0 +1,233 @@
+Como instalar o Angular:
+npm install -g @angular/cli
+
+Criando um projeto:
+ng new nome-projeto
+
+Para iniciar um servidor (entre na pasta nome-projeto antes):
+ng serve
+ou
+ng s -o
+
+Se o projeto foi criado num repositorio git, com o servidor remoto origin já especificado, ele terá acesso a esse origin.
+
+Vendo o index.html do projeto, vemos a seguinte tag:
+<app-root></app-root>
+
+Abrindo o arquivo src/app/app.componente.ts, vemos que ela é uma classe, e tem um decorator @Component, que é um metadata que adiciona algumas propriedades para uma classe
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
+})
+export class AppComponent {
+  title = 'bytebank';
+}
+Que significa: app-root é o seletor (tag), o template Url é o arquivo html sendo exibido, e o styleUrl é o arquivo scss usado na pagina.
+
+Dentro do angular, absolutamente TUDO são componente, seja páginas, formulário, tabela etc.
+Ao criar uma pasta e adicionar um .component.html e .component.css, para organização, é necessário criar uma classe .component.ts com o decorator @Component, e fazer a linkagem do seletor e as urls criadas.
+
+Instalei a extensão Angular Extension Pack, pois apresenta funções que facilitam a vida, como auto-complete.
+
+Para criar um seletor e incluir como tag no html, para importar o componente que eu criei, é necessário ter o prefixo "app", como em "app-root", porque no arquivo angular.json isso consta na lista de propriedades.
+<angular.json>
+"prefix": "app",
+
+Então, como exemplo, vamos criar o componente app-nova-transferencia. Mesmo colocando <app-nova-transferencia></> no html, ele ainda não reocnheceu, porque embora eu criei um componente, eu não adicionei ele a um módulo.
+
+Para adicionar um componente num módulo, entramos no arquivo app.module.js, e modificamos:
+
+declarations: [
+	AppComponent,
+	NovaTransferenciaComponent // nome da classe do componente ts
+],
+
+O Angular separa os componentes por módulos, e entre esses módulos, tem o módulo principal. 
+Então, a porta de entrada da aplicação é:
+index.html > app.component.ts, e esse app.componente só é reconhecido através do app.module.ts
+
+Aparentemente, em SCSS, ao nomear uma classe:
+.formulario{
+&__titulo{;;;}
+}
+&_titulo significa .formulario__titulo
+
+SCSS:
+background-color: var(--primary); - variável
+Para adicionar, abra styles.scss:
+:root{
+	--primary: green;
+}
+
+Site para fazer pesquisas: angular.io
+
+Caso esteja precisando de funcionalidades de formulário, pesquisa no site o nome do módulo (FormsModule) e adiciona em app.module.ts em:
+imports: [
+    BrowserModule,
+    FormsModule
+  ],
+Além, disso precisa importar também, com import{FormsModule} from '@angular/forms';
+
+EventBinding: estou passando o bind de um evento para uma propriedade interna do angular. Dessa forma: 
+<form class="formulario" (ngSubmit)="transferir()"></form>
+o EventBinding se poe entre (), e o ngSubmit identifica quando aconteceu um submit, e quando isso ocorrer, vai disparar o evento transferir()
+
+<input class="form-field__input" id="valor" type="text" [(ngModel)]="" />
+Para obter o valor de um campo de forma mais robusta, ao inves de usar a propriedade value do html, vamos usar uma diretiva chamada ngModel, do FormsModule. Apenas ngModel="" diz que ele ta recebendo um texto, agora com [(ngModel)]="" diz que está recebendo uma variável
+
+[ngModelOptions]="standalone: true}" - Diz se o campo não faz parte do formulário, se o valor do campo não vai ficar sendo alterado, assim n precisa de validação etc. Um exemplo de campo que se usa com essa propriedade: um campo apenas para mostrar uma informação.
+
+<input [(ngModel)]="person.firstName" name="first">
+Aqui, diz que o campo faz parte do formulário, eu que desejo que as regras de validação etc seja válida para ele também
+
+Diferenças entre [(ngModel)] e [ngModel]:
+[(ngModel)] -> Two way databind: permite que tanto o valor seja transportado do template para o componente, quanto do componente para o template.
+[ngModel] -> Próprio archbind: Permite que traga o valor da variável do componente para o template, mas qualquer alteração no template não reflete no componente.
+
+Data binding. Com ele é possível realizar a comunicação de um componente com o DOM da aplicação
+
+Property binding: permite que um valor de uma variável seja atribuído ao elemento HTML. Com isso, é possível associar uma porpriedade de um elemento a um atributo da nossa classe Typescript.
+Two-way data bindng: garante uma comunicação bidirecional entre o componente e o DOM.
+Event binding: permite que um evento do DOM seja atribuído a um método do, sendo possivel associar um evento de um elemento a um método da nossa classe Typescript
+
+Como pegar uma ação submit realizado por um componente e aproveitar em outro: criando um evento na classe. Exemplo: 
+export class NovaTransferenciaComponent{
+@Output() ao Transferir = new EventEmitter<any>(); - objeto do tipo EventEmitter permite propagar os dados. <any> - <> é tipagem, any significa poder ter qualquer tipo, mas tem que usar com cautela
+}
+
+Para transferir:
+Usar o event binding (aoTransferir), ou seja, quando for ativado a função aoTransferir, execute transferir(), que ainda não está implementada. Geralmente, o valor emitido em um evento vem dentro de uma variável chamado event.
+<app-nova-transferencia (aoTransferir)="transferir($event)"></>
+implementando a função transferir() em app.component.ts:
+
+<html>
+<p>{{variavel}}</p> - esse {{}} significa que está interpolando um valor
+<p>{{transferencia?.valor}}</p> - se tiver valor em trasnferencia, acesse a variável e traga o dado contido em seu campo valor
+
+Como criar um componente de forma fácil:
+[Terminal]
+ng generate componente nome
+
+Como fazer um componente receber uma informação;
+@Input() transferencia: any; - no typescript
+No componente html que possui o dado a ser transferido:
+<app-extrato [transferencia]="transferencia"></app-extrato>
+
+[HTML]
+<div *ngFor="let transferencia of transferencias">...</div> - Cria um for dentro do html, onde cada elemento da iteração é transferencia, e o conjunto de elementos(array) é transferencias.
+
+transferencias: any[] = []; - inicializando um array com nulo
+
+O operador ... significa que estou descontruindo o objeto associado, ou seja, ao inves de passar o objeto, vou passar apenas as propriedades internas desse objeto.
+const transferencia = {...$event, data: new Date()};
+
+<td>{{transferencia.data | date: "short"}}</td> - exibe dd/mm/aaaa hh:mm"
+
+locale_id - configura a localização do Angular (padrão é em ingles)
+
+adiciona-se o locale_id em providers: no arquivo app.module.ts.
+providers: [
+    { provide: LOCALE_ID, useValue: 'pt' },
+    {
+      provide: DEFAULT_CURRENCY_CODE,
+      useValue: 'BRL'
+    }
+]
+Após isso, ainda no app.module.ts, adiciona-se a função:
+import localePt from '@angular/common/locales/pt';
+import {registerLocaleData} from '@angular/common';
+registerLocaleData(localePt, 'pt');
+
+Usamos ngFor para iterar sobre os elementos do html. Para um if, podemos usar ngIf:
+<tbody *ngIf="!!transferencias; else listaVazia"> - !! significa "se tiver algum conteudo dentro de transferencias"
+(o que deu certo no meu caso:)
+<tbody *ngIf="transferencias.length > 0; else listaVazia"> - porque transferencias?.length pode ser undefined, dá erro
+
+No caso de não atender, usamos <ng-template></> para dizer o que vai aparecer caso o if não seja satisfeito (nesse caso, se não tiver valor em transferencias)
+<ng-template #listaVazia>...</ng-template> - listaVazia é o nome do elemento
+
+Como criar um serviço:
+Criar uma pasta, botão direito > Generate Service
+conteudo de transferencia.service.ts:
+@Injectable({
+  providedIn: 'root'
+})
+export class TransferenciaService {
+
+constructor() { }
+
+}
+O que esse @Injectable está dizendo é que eu posso invocar uma instancia dela através de um construtor.
+Ou seja, ao invés de precisar declará-la como:
+meuService = new TransferenciaService(...);
+Eu posso ir no construtor da classe:
+constructor(private service: TransferenciaService){...}
+E isso vai fazer com que eu injete uma instância válida desse service
+
+httpClient: provê métodos que façam requisições de mapear uma API Rest, como requisição GET, POST, etc
+import { HttpClient } from '@angular/common/http';
+constructor(private httpClient: HttpClient) {}
+Precisamos importar em app.module.ts:
+imports:[HttpClientModule,]
+
+[transferencia.service.ts]
+private url = 'http://localhost:3000/transferencias'
+todas(): Observable<Transferencia[]>{
+    return this.httpClient.get<Transferencia[]>(this.url);
+  }
+Observable usa a propriedade de "ficar escutando", ou seja, executa o método assincronamente, quando receber uma resposta. O método em geral vai até a url e faz uma requisição GET.
+Após isso, fazemos uma função que vai receber um objeto Observable e, pelo que entendi, vai 'observar' ele. Quando receber transferencias (da requisicao http da url), executa essas funções.
+[extrato.components.ts]
+ngOnInit(): void {
+    this.service.todas().subscribe((transferencias: Transferencia[]) => {
+      console.table(transferencias);
+      this.transferencias = transferencias;
+    });
+  }
+
+Requisição HTTP POST:
+this.httpClient.post<Transferencia>(this.url, transferencia);
+
+Esse código, o subscribe vai parar e ficar escutando o retorno do adicionar, que aí sim vai executar a função de imprimir o resultado e limpar os campos. 
+DICA IMPORTANTE: se deixasse o limparCampos sem um subscribe, poderia dar erro ao usuário em alguns casos, como por exemplo problema de conexão, destino não estar disponível, etc, iria limpar os campos.
+Então, o que geralmente é feito, é que quando vamos manipular algum elemento da tela, é feito no método subscribe().
+constructor(private service: TransferenciaService){}
+const valorEmitir: Transferencia = {valor: this.valor, destino: this.destino};
+    this.service.adicionar(valorEmitir).subscribe(resultado => {
+      console.log(resultado);
+      this.limparCampos();
+    });
+
+Criando Router:
+RouterModule.forRoot() - significa que, para o módulo principal, as rotas serão essas. Agora, se tiver trabalhando com um módulo interno, utilizaria forChild.
+
+export const routes: Routes = [
+  { path: '', redirectTo: 'extrato', pathMatch: 'full' }, // se acessar caminho vazio, acesse extrato
+  { path: 'extrato', component: ExtratoComponent },
+  { path: 'nova-transferencia', component: NovaTransferenciaComponent },
+]
+
+@NgModule({
+  imports: [RouterModule.forRoot()],
+  exports: [RouterModule]
+})
+export class AppRoutingModule{
+
+}
+[em app.component.html]
+<router-outlet></router-outlet> - elemento do modulo RoutingModule
+
+path: '', redirectTo: 'extrato' -> significa que se acessar uma rota vazia, vá para a rota extrato
+pathMatch: 'full' -> significa que vou redirecionar toda a página.
+
+Criação de links:
+Problemas com <a href="..."> - ele da refresh em toda a página, e não só na parte da tela que precisa.
+Para recarregar apenas a parte necessária, usamos:
+<a routerLink="extrato"></a>
+
+Indo para a página de extratos após adicionar uma transferência:
+[nova-transferencia.component.ts]
+constructor(private service: TransferenciaService, private router: Router]
+this.router.navigate(['extrato', valor]) - Pede um array de comandos, que é a maneira inicial q o angular dava para navegar
+this.router.navigateByUrl('extrato'); - igual o de cima, mas passando apenas a url a ser redirecionada.

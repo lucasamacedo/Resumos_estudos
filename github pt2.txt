@@ -1,0 +1,126 @@
+Contribuindo com projetos do github:
+Abrir a aba de Issues (onde tem sugestões de melhoria, pedidos de novas funcionalidades, etc.)
+Se propor a resolver a Issue
+Fazer um Fork do projeto para seu computador local
+O Fork gera uma cópia do projeto no repositório do github
+Faça git remote add origin <link> da copia do projeto no seu github
+git remote pull origin master -> para trazer o repo cópia do github para o pc
+Após isso, faça as alterações necessárias (resolver a issue)
+git add, git commit, etc.
+Antes de enviar, é importante unir todos os commits, para ficar mais fácil do dono do repositorio base ver as mudanças feitas de uma vez. Assim:
+git rebase -i HEAD~3 -> a partir do meu trabalho atual, unir os ultimos 3 commits, ou
+git rebase -i <hash do commit anterior ao que quero juntar>
+
+
+Então, enviar para o repo github com:
+git push origin master
+
+Entrar no repositório base
+Criar um Pull Request
+Criado o PR, o dono do repositorio base pode aceitar e fechar a Issue, indo até a Issue falar "Fechado pelo PR #2"
+
+Escolher um commit específico para trazer no estado de trabalho atual (útil quando esse commit tem alguma mudança em alguma outra branch que você precisa e não quer refazer o trabalho)
+git cherry-pick <hash>
+
+Encontrando bugs (ou encontrando o commit que realizou determinada mudança)
+git bisect start
+git bisect bad HEAD -> commit em que o estado do arquivo está indesejado
+git bisect good <hash> -> estado em que o código possivelmente estava bom
+A partir disso, checa o arquivo e vê se ele tem o estado bom desejado
+Se está num estado ruim:
+git bisect bad
+Até encontrar o estado bom. Encontrando esse estado bom:
+git bisect good
+Após isso, ele pede mais. Se o próximo estado tiver ruim ou bom, repete os comandos acima de git bisect bad/good.
+Quando ele encontrar o commit desejado:
+git bisect reset
+
+Ele fornece o commit que você introduziu o 'bug', a mudança indesejada.
+Para ver as alterações do commit:
+git show <hash>
+Então, vai usar no commit que introduziu o bug:
+git revert <hash>
+
+"Encontrando culpados"
+git blame index.html -> mostra quem é responsavel pela alteração de cada linha do código
+
+Deletando branches:
+git branch -d nome-branch
+Caso o nome-branch esteja com commit à frente do master, exclui-se com
+git branch -D nome-branch
+
+Quais branches utilizar:
+Development
+	feature/nome-funcionalidade
+	feature/lista-cursos-linux
+	release/v0.2.0
+hotfix/v0.1.1
+
+Quando terminar uma feature, por exemplo, lista-cursos-linux, em Development:
+git merge feature/lista-cursos-linux
+
+hotfix/v0.1.1 -> usado para corrigir bug na master da versao v0.1.0
+Após o bug corrigido, e add + commit:
+git checkout master
+git merge hotfix/v0.1.1
+git tag -a v0.1.1
+Após isso:
+git checkout development
+git merge hotfix/v0.1.1
+
+Após aplicado o hotfix, pode-se criar o branch release/v0.2.0
+Na release, faz adds e commits até estar pronta a versão, então:
+git checkout master
+git merge release/v0.2.0
+Por fim:
+git tag -a v0.2.0 -m "Descricao da nova versao"
+(para manter development atualizado:
+git checkout development
+git merge release/v0.2.0)
+git push local master
+git push local v0.2.0
+Para enviar a tag para o github, gerando uma release: 
+git push origin v0.2.0
+
+Resumo das branches:
+Development: vai conter várias features adicionadas, e é o estado mais próximo da nova versão.
+Hotfix: problema/bug encontrado na master (em produção), por isso após consertado, o master dá um merge, e o Development também vai dar um merge na master. (v0.1.1, por ex)
+Release: Usado para testes após features concluidas (consequentemente hotfix atualizados). Então, se ocorrer algum bug, conserta na release, e aí lança a versão nova (v0.2.0, por exemplo). A release só conserta bugs que afetam a própria release (da própria release).
+
+Eventos
+
+Hooks:
+No repositorio git local:
+cd .git
+cd hooks/
+ls
+Escolher uma amostra, exemplo: pre-commit.sample
+vim pre-commit
+[dentro do arquivo
+#!/bin/sh
+
+echo "teste"
+]
+
+ls -l (para checar as permissoes de arquivo read/write etc. Se não tem permissao: chmod u+x pre-commit)
+
+Agora, quando você dar um git commit, vai executar esse script antes do commit.
+
+Usando Hook para Deploy:
+cd no servidor (local)
+cd ../servidor
+cd hooks/
+ls
+vim post-receive
+Ou seja, depois que o servidor local receber um push, vai executar o post-receive
+
+[Dentro do arquivo
+#!/bin/sh
+
+git --git-dir="C:\Users\ALURA\Documents\git-e-github\servidor" --work-tree="C:\Users\ALURA\Documents\git-e-github\web" checkout -f
+]
+
+Com a pasta web criada, quando fizermos um 
+git push local master
+
+Vai estar já o index.html pronto na pasta web

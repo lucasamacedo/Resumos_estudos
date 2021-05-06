@@ -1,0 +1,72 @@
+<h1> Título (header) da página
+
+<p> Cria um parágrafo no texto
+
+<strong> negrito (semântico)
+
+<em> - itálico (semântico)
+
+<!DOCTYPE html> - Informa para o navegador que estamos usando a versão mais recente do html
+
+<html lang="pt-br"> - Informa para o navegador que a língua é a portugues-br (para por exemplo, oferece ao usuario de outro idioma a opção de traduzir automat. a pagina)
+
+<head> - Divisão onde irá passar informações para o navegador
+
+<body> - Divisão onde o conteudo será exibido para o usuário
+
+<meta charset="UTF-8"> - Dicionário de caracteres (para exibir caracteres como Ç)
+
+<p style="font-size: 20px"> - Adiciona CSS no arquivo html. Tamanho de fonte padrão do navegador é 16px.
+
+<h1 style="text-align: center"> - Alinha o texto no centro
+
+<style> - Aplica conteudo CSS na página. Usa dentro da tag <head>
+
+<link rel="stylesheet" href="style.css> - Usa o arquivo style.css na página. Dentro da tag <head>
+
+(css) background-color: #CCC - Cor cinza de fundo
+
+Para boas práticas em projeto, a ordem dos elementos do arquivo CSS segue a estrutura do HTML.
+
+color:red - cor de texto vermelho
+
+(CSS) em strong{} - todos os strongs dentro da tag <em>
+
+Formas de representar cor:
+red - Escrito
+#FF0000 - Hexadecimal
+rgb(255,0,0) - rgb "numérico"
+
+<p id="missao"> - id de uma tag
+#missao{} - referencia a esse id no arquivo CSS
+
+<img src="caminho/imagem.jpg"> - insere uma imagem
+
+Developer Tools: F12 na página web. É possível alterar lá e já visualizar a alteração
+
+(css) 
+height: 150px; - altura do elemento
+width: 100%; - largura do elemento
+border: 10px solid #000000; - borda preta
+padding: 10px; - espaçamento interno. 
+padding-top: 10px; - espaçamento interno apenas superior, etc
+margin: 10px; - espaçamento externo/margem
+font-style: italic - fonte em itálico
+
+<ul> - unordered list
+<ol> - ordered list
+<li> - list item. Usa-se dentro de <ul> ou <ol>
+
+<li id="item"> - id é identificador que pode ser referenciado apenas uma vez
+<li class="itens"> - classe é um identificador que pode ser referenciado mais de uma vez
+(css)
+#item{} - id no arquivo CSS
+.itens{} - classe no arquivo CSS
+
+block - são conteúdos que ocupam um espaço fixo na página(a linha toda), independente se o conteúdo em si é menor que esse espaço
+inline - ocupa espaço de acordo com seu conteúdo. Não deixa mudar margem, espaçamentos, etc.
+inline-block - ocupa o tamanho do seu conteúdo, mas deixa mexer nas suas larguras e espaçamentos.
+
+(css)
+display: inline-block;
+vertical-align: top; - alinha os elementos por cima (padrão é alinhar por baixo)

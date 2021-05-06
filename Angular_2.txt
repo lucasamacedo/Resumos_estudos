@@ -1,0 +1,717 @@
+@Component({
+	selector: 'app-root',
+	templateUrl: './app.component.html',
+	styleUrls: ['./app.component.css]
+})
+export class AppComponent {...}
+
+Aqui eu estou adicionando um meta-dado a esse dado, que são informações a mais que o objeto terá quando criarmos, que diz respeito ao framework.
+
+DataBinding:
+Você passa informações de propriedades que tem no componente para o template (o contrário não acontece).
+Exemplo: no app.component.ts:
+
+export class AppComponent{
+	title: 'teste'
+}
+[html]
+<h1>Welcome to {{title}}!</h1>
+
+Usa-se {{id}} para data-binding que não seja um atributo(ou seja, uso isolado ou dentro de tags, mas sem ser atributo). Para data-binding de atributos, utiliza-se []. Exemplo: [alt]: 'title'. Exemplo:
+<img [src]='url' [alt]='description'>
+
+Conveção de código:
+calopsita.component.ts
+calopsita.component.html
+calopsita.component.css
+CalopsitaComponent
+
+Como carregar o Bootstrap no Angular:
+Quando precisa importar um css global, como um css-reset, um bootstrap etc, não adianta apenas inserir a tag, pois esses arquivos css precisam estar no processo de build da aplicação.
+
+Então, como carregar CSS e Scripts globais? Acessando angular.json
+"styles": [] - carrega todos os css globais da aplicação
+"scripts": [] - carrega todos os scripts globais da aplicação
+
+Para não precisar baixar o bootstrap, achar o link e incluir, etc. É possivel usar o gerenciador de pacotes npm para baixá-lo e incluir na aplicação. Assim:
+npm install bootstrap
+Após instalar, ele vai jogar essa dependência do meu projeto dentro do arquivo package.json, arquivo esse que indica todas as dependencias e modulos baixados pelo npm
+Os arquivos ficam dentro da pasta node-modules.
+Como carregar o bootstrap na aplicação? Ele precisa fazer parte de uma lista de CSSs globais que o angular CLI vai levar em consideração em tempo de build da aplicação.
+Para isso, é necessario entrar no arquivo angular.json e adicionar em "styles" o CSS global desejado.
+
+Mexeu no angular.json, é necessário fechar e abrir o angular cli para que a alteração surta efeito.
+
+Para tornar uma imagem responsiva, adiciona-se a classe "img-thumbnail" (do bootstrap) nela.
+
+@Component({
+  selector: 'app-photo',
+  templateUrl: 'photo.component.html'
+})
+export class PhotoComponent{}
+Usa-se templateUrl pois template significaria que tu escreveria o html diretamente no componente, 
+
+Para criar o primeiro componente:
+Cria a pasta photo.
+Dentro dela, cria photo.component.ts, photo.component.html e photo.component.scss (se quiser).
+[photo.component.ts]
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-photo',
+  templateUrl: 'photo.component.html'
+  styleUrls: ['photo.component.scss']
+})
+export class PhotoComponent{}
+
+Para chamar o componente de outra página html: usa a tag seletor, ou seja:
+<app-photo></app-photo>
+
+Se fazer apenas isso vai dar erro, pois ele ainda não pertence a um módulo. Um módulo é uma forma de agrupar componentes afins/relacionados. Assim, se outra área da aplicação quer aplicar uma data table, por exemplo, ela importa o módulo, e não todos os componentes que fazem parte do data table.
+
+Adicionando o módulo
+[app.module.ts]
+declarations:[AppComponent, PhotoComponent]
+
+Convençao: separar (com uma quebra de linha) import do angular dos imports dos nossos componentes criados
+
+Agora, o AppComponent consegue identificar o PhotoComponent, pois fazem parte do mesmo módulo.
+
+
+Problema do PhotoComponent ser assim:
+export class PhotoComponent{
+  description = 'Máscara';
+
+  url = 'https://i0.wp.com/dozebits.com.br/wp-content/uploads/2016/09/dishonored_2_corvo_mask.jpg?fit=650%2C450&ssl=1';
+}
+
+É que se eu importar mais de um <app-photo>, vai ter a mesma foto, e eu quero mudar a foto. Para isso, vamos usar:
+
+<app-photo url="..." description="Emily"></app-photo>
+<app-photo url = "..." description="máscara"></app-photo>
+
+Porém, para que isso dê certo, é necessário o decorator @Input, pois se eu não explicitar que posso modificar o valor da propriedade do componente pela forma declarativa, esse valor nunca vai cair dentro da propriedade.
+
+Com isso, a description e a url são in-bound properties, ou seja, elas aceitam receber um valor através da forma declarativa do component.
+
+
+Porém, importando o PhotoComponent diretamente no app.module.ts, o problema é que conforme o projeto cresce, vai haver um número exagerado de importações, e tem um jeito melhor de fazer isso:
+Criar uma pasta chamada photos, onde vai conter tudo relacionado à photo. Vou mover a pasta photo dentro dela.
+Dentro da pasta photos, vou criar um photos.module.ts, e importar nele todos os componentes relacioando a photos, e no app.module, irei importar esse módulo. Assim, fica muito mais organizado o código
+
+[photos.module.ts]
+import { NgModule } from '@angular/core';
+import { PhotoComponent } from './photo/photo.component';
+
+@NgModule({
+  declarations: [ PhotoComponent ]
+})
+export class PhotosModule{}
+
+Agora, preciso adicionar o PhotosModule no AppModule:
+[app.module.ts]
+imports: [
+    BrowserModule,
+    PhotosModule
+  ],
+Porém, PhotoComponent está "privado" em PhotosModule. Para tornar o componente PhotoComponente "público" para quem importa PhotosModule (ou seja, para AppModule, nesse exemplo, conseguir ter acesso), o exportamos da seguinte maneira:
+
+
+Agora surge um problema: E se eu quiser adicionar 50 fotos? vou fazer <app-photo> para cada uma da fotos? 
+Para não fazer isso, vamos usar listas.
+export class AppComponent {
+  photos = [
+    {
+      url: '...',
+      description: '...'
+    },
+    {
+      url: '...',
+      description: '...'
+    }
+  ];
+}
+E vamos usar diretrivas, que alteram o comportamento de um componente já existente. Assim, utilizaremos estrutura de loop:
+
+<app-photo *ngFor="let photo of photos"
+[url]="photo.url"
+[description]="photo.description"></app-photo>
+
+Vamos integrar a aplicação Angular com uma API, um back end. Neste momento, nossa aplicação está rodando em um servidor disponibiliado pelo Angular CLI. Nosso projeto será transformado, no futuro, em alguns arquivos que poderão ser inclusos em um servidor php, apache, java, etc.
+Em um fluxo natural de uma Single Page Application, a aplicação angular fica em um servidor A, e a API com dados e regras de negócio ficam em um servidor B. A vantagem é que, quem trabalha na API (back end), pode trabalhar sem interfirir no front end,etc.
+
+Baixar e extrair a api.rar fornecida pelo curso, entrar nessa pasta pelo cmd, executar npm install (pra instalar td as dependencias necessárias), dps npm start.
+Porém para mim deu um erro, e precisei dar npm sqlite3 antes de dar npm install
+
+Dados do servidor: acessivel em localhost:3000/flavio/photos (exmplo de diretorio)
+Agora, preciso sempre abrir tanto o ng s -o quanto a api.
+
+Vamos pegar as informações das photos dessa API agora.
+Vamos usar um serviço/artefato que foca na comunicação entre a aplicação e a API: o HttpClient
+Porém, ao começar a usar http = new HttpClient(), ele não importa automático, e ele precisa de um parâmetro HttpHandler que é uma classe abstrata, e então n pode fazer http = new HttpClient(new HttpHandler()), porque classe abstrata não pode dar new.
+Aí complica, porque eu quero apenas usar o HttpClient, e não quero me preocupar com os detalhes internos do HttpClient. Assim, para eu falar "quero usar um httpclient", e alguém "escutar" e fornecer isso facilmente, usaremos injeção de dependência para resolver isso.
+A injeção de dependência faz com que alguém injete, no ato de criação do meu AppComponent (classe atual), esse HttpRequest que quero usar. Para isso, crio um construtor.
+constructor(http: HttpClient) {
+	console.log(http);
+}
+
+Porém, apenas assim vai dar erro, pois a aplicação vai gritar "quero um http", o angular vai responder "entendi, mas n sei criar pq é mt complexo".
+Para resolver isso, é necessário um provider, para que o angular diga "eu não sei fazer, tem alguém que saiba fazer?" e o Provider faça isso.
+
+Existe um módulo no Angular que tem um provider que já vem configurado: o HttpClientModule.
+Assim, lá em app.module.ts, em imports, adicionar HttpClientModule, e importando de '@angular/common/http'
+Finalmente, agora tenho o HttpRequest funcionando certinho.
+
+Para eu pegar os dados do servidor local flavio/photos, vou fazer um http.get:
+http.get('url');
+Porém, essa função não retorna os dados obtidos no servidor, e sim um objeto Observable, que é alguém que quero ficar observando:
+const observable = http.get('url');
+Se eu deixar apenas essa linha, nada será executado. Para isso, preciso me inscrever no observable, já que ele só executa a ação se tiver alguem inscrito nele. Então:
+observable.subscribe();
+Se o subscribe der certo, ele vai retornar os dados que eu posso capturar em uma function:
+observable.subscribe(photos => this.photos = photos);
+Porém, ainda ta dando erro, por causa da linguagem não tipada. Assim:
+photos: Object[] = [];
+.get<Object[]>('url') - <> significa "Não importa o que venha, trate como um Object[]"
+
+Qual o problema do código abaixo?
+[app.component.ts]
+http.get<Object[]>('http://localhost:3000/flavio/photos').subscribe(photos => this.photos = photos);
+É que se criamos, por exemplo, 30 componentes, nos quais 7 precisa de acesso à API de fotos, todas elas irão pegar o mesmo link, fora que se o url mudar, vai ter que sempre alterar em todos os lugares.
+Meu componente não precisa saber dos detalhes de onde os dados estão vindo, ele só quer os dados.
+
+Para resolver isso, criamos os serviços, que tem o objetivo de isolar o acesso à API, especializada em consumir API.
+Nomenclatura: photo.service.ts na pasta photo
+
+Primeiro: se o serviço vai acessar a API, então ele vai precsiar de um HttpClient [constructor(http: HttpClient){}]
+
+constructor(private http: HttpClient) {} - private no parâmetro é um atalho que significa que esse parâmetro eu quero que seja um atributo privado da classe, e não algo temporário que será descartado após o término da função.
+
+listFromUser(userName) {
+    this.http.get<any[]>('http://localhost:3000/flavio/photos');
+  }
+Não posso usar o subscribe nessa classe, pois o subscribe que vai efetivamente buscar os dados, então quem deve usar o subscribe é a classe que for chamar essa classe serviço.
+Então, voltando em 
+[app.component.ts]
+export class AppComponent {
+  photos: any[] = [];
+  constructor(photoService: PhotoService){
+    photoService
+    .listFromUser('flavio')
+    .subscribe(photos => this.photos = photos);
+  }
+}
+
+Vai repetir o erro de não ter provider de PhotoService: o app.component vai falar "eu preciso de um PhotoService" e o angular vai falar "eu entendi, mas eu não sei criar esse cara"
+Porém, a solução dessa vez é diferente: quando você cria um serviço, é preciso adicionar o decorator @Injectable(), que diz que ele pode receber a injeção de dependências, mas também precisa informar qual o escopo desse serviço: se vai ser apenas um unico photo.service.ts para a aplicação inteira, ou não.
+@Injectable({ providedIn: 'root' })
+export class PhotoService {...}
+O escopo 'root' significa que qualquer componente que precisar do PhotoService terá ele disponível, a mesma instância.
+
+Criando uma interface:
+Interface é um "modelo" que diz como algo tem que encaixar, ou seja, que forma que um objeto deve ter para encaixar na interface, por exemplo Interface usb. Vamos criar um arquivo chamado photo.ts na pasta photo:
+[photo.ts]
+export interface Photo {
+	id: number;
+	postDate: Date;
+	...
+}
+Agora, acessar photo.id mostra que existe esse id, ao inves de acessar a propriedade id de um objeto do tipo any, que aceita qualquer coisa e pode dar erros.
+A interface torna o código menos susceptível a erros, e ajuda a produtividade, pelo auto-complete.
+Mas, agora suponhamos que o atributo da interface userId mude para user, seleciono userId na Photo, clico com o botão direito do mouse > rename symbol, e renomeio para user. Agora, todo mundo que acessava photo.userId vai acessar photo.user.
+
+Agora, vamos convencionar da seguinte forma: Vamos colocar no construtor as injeções de dependência, e no método ngOnInit() (que executa após a instanciação da classe e de receber os inbounds necessarios) colocaremos qualquer código de inicialização ou configuração.
+Para eu ter uma maneira de ser avisado se errei o nome do método ngOnInit, posso fazer export class AppComponent implements OnInit {...}
+OnInit é uma interface. Além do exemplo que vimos, que ela da forma ao objeto, para que o tratemos de forma tipada, a interface também obriga a criar determinado método. Nesse caso, essa interface nos obriga criar ngOnInit().
+
+Como padronizar o import com aspas simples ':
+Adicionar código em File > Preferences > Settings, no lado direito:
+"javascript.preferences.quoteStyle":"single",
+"typescript.preferences.quoteStyle": "single"
+
+Testando vai dar erro, pois não vai reconhecer atributo *ngFor de <ap-photo>
+Isso acontece porque, embora não tenha sido carregaado na pagina, o angular vai verificar a integridade dos arquivos, e reconhece isso. Isso está acontecendo porque antes, a lógica do photolist tava no appcomponent, que importa o BrowserModule, mas não podemos importar o BrowserModule em nenhum outro lugar da aplicação a nao ser no modulo principal, pq ele traz muitas configurações para o browser etc.
+Porém, podemos importar um módulo que o BrowserModule importa, que é o CommonModule, que possui a declaração das deritivas.
+Portanto é uma boa prática todo modulo que voce criar, já importar o CommonModule para ter acesso a ngFor, if etc.
+
+Roteamento:
+Como uma hora carregar uma página, e outra hora outra, sendo uma SPA (Single Page Application)?
+Exemplo de caminho: http://localhost:4200/user/flavio
+Nisso, antes de enviar a requisição para o backend, o angular vai ver se possui esse caminho na lista de rotas dele, e se possuir, vai carregar o componente respectivo a essa rota, cancelando a requisição direta para o backend. Se o caminho não estiver na lista de rotas, ele deixa a requisição ir para o backend normalmente.
+
+Configurando o roteamento:
+criar, na pasta app, app.routing.module.ts:
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+const routes: Routes = [
+  { path: 'user/flavio', component: PhotoListComponent },
+  { path: 'p/add', component: PhotoFormComponent }
+];
+
+@NgModule({
+  imports: [ RouterModule.forRoot(routes) ]
+})
+export class AppRoutingModule { }
+
+Routes associa um caminho a um componente, e o RouterModule sabe como fazer o roteamento, porém precisamos passar o .forRoot(routes) para ele conseguir trabalhar direito. O forRoot significa que vai levar em consideração o caminho raiz da aplicaçao (localhost:4200/) para o roteamento.
+
+Após isso, ir em app.module.ts e importar AppRoutingModule
+
+Dica: As vezes o angular fica perdido quando importa um módulo de rotas, então é melhor parar o servidor e reiniciá-lo.
+Agora, mesmo fazendo isso, e tentar acessar localhost:4200/rota, não vai exibir nada. Porque? Porque temos que falar para o angular onde queremos exibir o resultado do component, já que falamos pra ele que de acordo com tal endereço, carregue tal component. Assim, usando a tag abaixo, ele vai saber que deve exibir o componente.
+[app.component.html]
+<router-outler></router-outlet>
+
+Aí, vai dar um erro de que router-outlet não é um componente, e se for, não faz parte desse modulo. Isso acontece porque o AppRoutingModule e os arquivos de configuração de rotas importado no app.module.ts não está importando as diretivas de rotas do modulo RouterModule
+Para resolver:
+[app.routing.module.ts]
+@NgModule({...
+exports: [RouterModule]
+})
+
+Ou seja, quem importar app.routing.module vai ganhar acesso ao RouterModule, assim não precisa ter a responsabildiade de ter que importá-lo.
+
+Caso o usuário digite uma rota inexistente, podemos fazer com que ela carregue um determinado componente, como por exemplo:
+const routes: Routes = [
+  { path: 'user/flavio', component: PhotoListComponent },
+  { path: 'p/add', component: PhotoFormComponent },
+  { path: '**', component: PhotoListComponent }
+];
+
+Dessa forma qualquer link que não tem rota correspondente irá carregar o PhotoListComponent
+
+Se eu quero que o usuário seja redirecionado para uma página de erro 404: not found, onde eu adicionaria? Não pode ser em photos, pois não tem relação direta com photos, e também não quero em app.module.ts para não ficar cheio de importação, então é melhor criar um novo module chamado errors
+
+Como usar uma variável para ir até a pagina localhost:4200/user/userName?
+[app.routing.module.ts]
+{ path: 'user/:userName', component: PhotoListComponent },
+No momento ele aceita tudo no formato user/qualquercoisa, e vai para a página user/flavio, porque, em photo-list.component.ts:
+ngOnInit(): void{
+    this.photoService
+    .listFromUser('flavio')
+    .subscribe(photos => this.photos = photos);
+  }
+ele está passando 'flavio' como parâmetro, acessando user/flavio. Para evitar isso, precisamos de um serviço do angular disponibilizado pelo próprio modulo de rotas:
+[photo-list.component.ts
+constructor(
+    private photoService: PhotoService,
+    private activatedRoute: ActivatedRoute
+    ){ }
+para acessar o :userName de { path: 'user/:userName', component: PhotoListComponent }, usamos:
+const userName = this.activatedRoute.snapshot.params.userName;
+-> snapshot é uma 'foto' do estado atual da rota. Params são os parametros. Agora, em:
+[photo.service.ts]
+return this.http.get<Photo[]>(API + '/' + userName + '/photos');
+
+Usando grid no Bootstrap:
+
+<ol class="list-unstyled row">
+  <li *ngFor="let photo of photos" class="col-4">
+    <app-photo
+      [url]="photo.url"
+      [description]="photo.description">
+    </app-photo>
+  </li>
+</ol>
+
+O grid do Bootstrap tem 12 "espaços" na coluna, e você não pode ultrapassar essa quantidade, senão haverá problemas de exibição. A classe "col-4" significa que cada item irá ocupar 4 "espaços" dessa coluna, ou seja, 3 itens por linha.
+Foi usado <ol> pois as imagens vem ordenadas por data do back-end.
+
+Porém, desse jeito, o resultado é que haverá 14 <li> criada, que preenchem 4 "espaços", sendo que o certo é gerar 1 linha(row) a cada 3 <li> criada. Faremos isso utilizando um componente que vai ter a responsabilidade de receber uma lista de fotos e formatá-la do jeito correto.
+
+Como é algo muito atrelado ao photo-list, criaremos o componente la.
+photos/photo-list/photos
+
+Como separar em Row? Primeiro, tem que entender que não posso me basear na lista de Photo[] que eu estava recebendo, mas sim outra lista que irei criar que contenha as informações de row
+
+export class PhotosComponent implements OnInit {
+
+  @Input() photos: Photo[] = [];
+  rows: any[] = [];
+
+  constructor() { }
+
+  ngOnInit(): void {
+    this.rows = this.groupColumns(this.photos);
+  }
+
+  groupColumns(photos: Photo[]): any[]{
+    const newRows: any[] = [];
+    for(let i = 0; i < photos.length; i += 3){
+      newRows.push(photos.slice(i, i + 3));
+    }
+    return newRows;
+  }
+
+}
+newRows = [[0,1,2], [3,4,5],...]
+slice vai pegar as posições i, i+1, i+2
+
+Porém, esse código não vai dar o resultado que queremos.
+O motivo é que como declarei this.groupColumns no ngOnInit(), ele será chamado apenas uma vez, no começo da função enquanto rows ainda é um vetor vazio.
+Para resolver isso, utilizamos o OnChanges, que possui um parametro changes que mostra qualquer alteração realizada nos valores dos meus inbound properties, e se houve, ela cria uma propriedade com o nome da property alterada, por exemplo, changes.photos.
+
+Adicionando filtro na lista de fotos:
+Vamos adicionar um campo de texto onde iremos buscar fotos que cumpram o valor pesquisado.
+Adicionando o campo em photo-list.component.html:
+<div class="text-center mt-3 mb-3">
+  <form>
+      <input
+          class="rounded"
+          type="search"
+          placeholder="search..."
+          autofocus>
+  </form>
+</div>
+
+Vamos adicionar, no <input...>:
+keyup="filter = $event.target.value" - essa expressao do event é como se em JS fizessemos h1.addEventListener('keyup', function(event){event.target.value});
+Mas se fizermos assim, ele irá preencher o conteudo de keyup com o valor dessa string, e não é o que queremos. Se fizermos o data-binding:
+[keyup]="filter = $event.target.value" também não vai funcionar, porque não há um atributo com esse nome para associar a keyup.
+
+Por isso, vamos fazer o event-binding:
+(keyup) = "filter = $event.target.value"
+Que significa: para o evento keyup, você vai avaliar essa expressão, ou seja, vai atribuir a filter o valor do evento (valor digitado no campo de busca, nesse caso)
+meu caso: tive que fazer: (keyup) = "filter = ($any($event.target)).value" para fazer com que aceite pegar o atributo value de EventTarget.
+O Data-Binding [] sempre vai do componente para o template, nunca o contrário
+O Event-Binding () sempre vai do template para o componente
+
+Pipe:
+Em expressões {{}}, podemos usar Pipes | para fazer transformações nos dados. por exemplo
+{{ nome | uppercase }} - transforma o texto em maiúsculo
+uppercase é um pipe do próprio angular, mas vamos precisar criar nosso próprio pipe
+
+<app-photos [photos] = "photos | filterByDescription: filter"></app-photos>
+filterByDescription: filter significa que filterByDescription, além de photos, também vai receber filter como parâmetro
+
+Para criar o pipe, vamos criar o arquivo filter-by-description.pipe.ts
+[filter-by-description.pipe.ts]
+import { Pipe } from '@angular/core';
+
+@Pipe({name: filterByDescription})
+export class FilterByDescription(){}
+
+Como uma classe Pipe precisa implementar uma interface PipeTransform. Para não correr esse risco, vamos adicionar implements PipeTransform:
+export class FilterByDescription() implements PipeTransform{} 
+Assim:
+@Pipe({name: 'filterByDescription'})
+export class FilterByDescription implements PipeTransform {
+  transform(photos: Photo[], descriptionQuery){
+  }
+}
+transform: primeiro parâmetro photos é quem você quer aplicar uma transformação, o segundo parâmetro é um vetor com todos os argumentos/parâmetros a serem passados para que ocorra a transformação desejada. Nesse caso, é apenas um argumento, então se passou como parâmetro uma variável apenas.
+
+Fazendo o filtro:
+transform(photos: Photo[], descriptionQuery: string): Photo[] {
+    descriptionQuery = descriptionQuery.trim().toLowerCase();
+
+    if (descriptionQuery) {
+      return photos.filter((photo) =>
+        photo.description.toLowerCase().includes(descriptionQuery)
+      );
+    } else {
+      return photos;
+    }
+  }
+Porém, apenas isso não vai dar certo, porque ele não vai encontrar filterByDescription. Isso ocorre porque ele não está presente na declaração do photos.module.ts. Para incluir um Pipe, ele precisa estar no declarations:
+@NgModule({
+    declarations: [
+      ...,
+      FilterByDescription
+    ],
+})
+
+Sempre que criar um componente, um pipe e (outra coisa que veremos no próximo curso), deve-se declará-los no modulo
+
+Agora, a mensagem de Sem fotos aparece quando atualiza a página, porque o array de photos começa vazio, e depois o array é preenchido pelas fotos.
+Para consertar esse erro, eu quero que, antes de eu criar meu componente, eu resolva antes todos os dados que o componente precisa para já disponibilizar os dados prontos para ele utilizar.
+Para isso vamos criar um Resolver, que resolve os dados durante a navegação de uma rota, para disponibilizá-lo ao componente.
+[photo-list.resolver.ts]
+@Injectable({providedIn: 'root'})
+export class PhotoListResolver{
+  constructor(private service: PhotoService) {}
+}
+Porém, para ele se tornar um Resolver, precisa implementar a interface Resolve, porém essa interface é genérica, entao é necessario dizer que tipo de dado será retornado no final.
+@Injectable({providedIn: 'root'})
+export class PhotoListResolver implements Resolve<Observable<Photo[]>>{
+  constructor(private service: PhotoService) {}
+  resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<Photo[]>{
+    const userName = route.params.userName;
+    return this.service.listFromUser(userName);
+  }
+}
+O resolver retorna o mesmo tipo de dado que listFromUser() retorna de PhotoService.
+Mas apenas isso não é o suficiente. Como o Resolver é acionado no momento que sua rota está sendo resolvida, é no app.routing.module.ts que vamos configurá-lo:
+const routes: Routes = [
+  {
+    path: 'user/:userName',
+    component: PhotoListComponent,
+    resolve: {
+      photos: PhotoListResolver
+    }
+  },
+Esse trecho adicionado significa que o componente vai ter acesso a propriedade photos com o resultado do PhotoListResolver
+Agora, ngOnInit() de photo-list.component.ts vai ficar assim:
+ngOnInit(): void{
+    this.photos = this.activatedRoute.snapshot.data.photos;
+  }
+é .data pra acessar o photos de resolve: {photos: PhotoListResolver }
+Agora, eu resolvo primeiro os dados e os deixo pré-preparados para o componente utilizar, assim quando inicio a página não carrega a mensagem "Sorry, no photos"
+
+O filtro está funcionando, porém o problema agora é que a cada letra digitada o site vai aplicar o filtro, e isso é ruim para a performance. Então, vamos fazer com que, se eu der uma pausa de 300ms (por exemplo), após digitar uma letra, ele aplique o filtro, senão não.
+Para usar isso, usamos o Subject, adicionando em photo-list.component.ts. A diferença do Subject para o Observable é que o Subject eu posso emitir valores e me inscrever nesse Subject para ter acesso a esse valor, já o Observable você apenas se inscreve nele para obter acesso a esse valor.
+[photo-list.component.ts]
+import { Subject } from 'rxjs';
+import {debounceTime} from 'rxjs/operators';
+export class PhotoListComponent implements OnInit {
+
+  photos: Photo[] = [];
+  filter = '';
+  debounce: Subject<string> = new Subject<string>();
+
+  constructor(private activatedRoute: ActivatedRoute){ }
+
+  ngOnInit(): void{
+    this.photos = this.activatedRoute.snapshot.data.photos;
+    this.debounce
+    .pipe(debounceTime(300))
+    .subscribe(filter => this.filter = filter);
+  }
+}
+
+Em photo-list-component.html:
+<input
+          class="rounded"
+          type="search"
+          placeholder="search..."
+          autofocus
+          (keyup)="debounce.next(($any($event.target)).value)">
+Vou emitir um valor para esse debounce a cada tecla digitada
+
+this.debounce.subscribe(filter => this.filter = filter) é diferente do subscribe do HttpClient, porque o HttpClient emite um único valor e completa. Agora, como eu criei esse Subject, ele não completou, ou seja, vai ficar eternamente escutando.
+debounce.pipe(debounceTime(300)) - Apenas processa uma requisição se passou 300ms desde a última, senão ele ignora.
+Porém, surge um problema: como esse debounce está escutando sem parar, ele está consumindo espaço na memória, então se mudar de página onde ele não é mais necessário, ele vai continuar ocupando espaço. Para resolver isso, vamos fazer:
+export class PhotoListComponent implements OnInit, OnDestroy{
+...
+ ngOnDestroy(): void {
+    this.debounce.unsubscribe();
+  }
+}
+Então, se eu estou trabalhando com um debounce que eu não chamo um debounce.complete(), e nesse caso nao posso fazer isso, porque eu não sei quando o debounce vai completar, porque enquanto o usuário tiver digitando eu quero que ele funcione. Então, nesses casos, é uma boa prática dar unsubscribe OnDestroy;
+
+Atualmente, está sendo carregado todas as imagens do banco de dados para depois aplicar o filtro. Isso é horrível para performance. Então, vamos carregar na tela apenas um numero de fotos, e para carregar mais fotos haverá um botão de 'carregar mais' ou páginas.
+em photo.service.ts:
+listFromUserPaginated(userName: string, page: number): Observable<Photo[]> {
+    return this.http.get<Photo[]>(API + '/' + userName + '/photos');
+  }
+A api ja ta preparada para urls como http://localhost:3000/flavio/photos?page=2
+Então, vamos adicionar o params para nossa url:
+listFromUserPaginated(userName: string, page: number): Observable<Photo[]> {
+    const params = new HttpParams()
+      .append('page', page.toString());
+    return this.http
+      .get<Photo[]>(API + '/' + userName + '/photos', {params});
+  }
+No JavaScript, se uma chave tem o mesmo nome de uma variável, como {params: params}, eu posso simplificar para {params}
+
+Por fim, vamos no photo-list.resolver.ts atualizar o resolver:
+return this.service.listFromUserPaginated(userName, 1);
+
+Criando um botão de carregar mais imagens:
+ng g c photos/photo-list/load-button
+
+<div class="text-center" *ngIf="hasMore; else messageTemplate">
+  <button class="btn btn-primary">Load more</button>
+</div>
+
+<ng-template #messageTemplate>
+  <p class="text-center text-muted">No more data to load</p>
+</ng-template>
+
+É assim que funciona o else numa condição *ngIf. O fluxo alternativo de execução deve estar dentro de um ng-template.
+
+Adicionando, em photo-list.component.ts
+load() {
+    this.photoService
+    .listFromUserPaginated(this.userName, ++this.currentPage)
+    .subscribe(photos => {
+      this.photos.push(...photos);
+      if(!photos.length) { this.hasMore = false; }
+    });
+...photos quer dizer: para cada itens de photos, desmembra esse elemento, passando as photos uma a uma, como se eu falasse: passa a photo 1, 2 ,3 ,4, 5...
+
+Assim não vai funcionar, pois o angular não vai adicionar as photos, pois ele não está atualizando as novas photos no vetor de photos de photos.component.ts.
+Resolvendo op roblema:
+.subscribe(photos => {
+      this.photos = this.photos.concat(photos);
+      if(!photos.length) { this.hasMore = false; }
+    });
+concat pega a this.photos, concatena com photos, e retorna uma nova lista. como ele ta gerando uma nova lista, uma nova referência, o mecanismo de checkChangedDetection do angular vai funcionar. Assim, eu forcei criar uma nova referência e atribui para this.photos, e aí o angular detectou a mudança.
+
+Como photos.module.ts está começando a ficar muito sobrecarregado, porque se eu precisar criar ainda mais módulos relacionados a fotos, ele vai acabar tendo muito import. Então, vamos criar submódulos, para tirar um pouco essa pressão.
+Então, vamos criar submódulos para photo-list, photo-form e photo. Após criado, vamos atualizar photos.module.ts, basta apenas importar os novos modulos
+@NgModule({
+    declarations: [
+    ],
+    imports: [
+      PhotoModule,
+      PhotoFormModule,
+      PhotoListModule,
+      HttpClientModule,
+      CommonModule
+    ]
+})
+export class PhotosModule {}
+
+Porém, vai dar erro, pois usamos *ngIf e expressões parecidas nos templates, então relembrando, é uma boa prática importar o CommonModule nos modulos. Além disso, vamos importar o que apenas cada parte precisa para funcionar, e retirar do photos.module.ts. Assim, vamso saber exatamente o que cada modulo precisa para ser executado
+
+Agora, queremos adicionar um ícone de lupa ao lado do campo de busca. Para isso, vamos usar os icones do pacote FontAwesome. Para instalar:
+npm install font-awesome
+Após isso, ele vai incluir no nosso package.json, porém ele tem um CSS que precisa ser carregado para ser visto pela minha aplicação, então temos que ir em angular.json e, em styles, adicionar o caminho dele, pois queremos adicionar o CSS global dele.
+Lembrando que quando eu altero o angular.json, eu preciso reiniciar o angular cli.
+Para adicionar um ícone do fontawesome, adiciona na classe "fa fa-nomedoicone". Como fizemos com a lupa:
+<i aria-hidden="true" class="fa fa-search mr-2"></i>
+
+A propriedade aria-hidden="true" indica para programas de acessibilidade que devem ignorar isso.
+
+Só que, notando, temos um espaçamento bem grande entre as fotos. Podesmo resolver isso com a classe do bootstrap "no-gutters". Em photos.component.html:
+<li *ngFor="let cols of rows" class="row no-gutters">
+
+Adicionando icone e numero de likes/comments:
+<div class="text-center">
+        <i aria-hidden="true" class="fa fa-heart-o fa-1x mr-2"></i>{{ photo.likes }}
+	<i aria-hidden="true" class="fa fa-comment-o fa-1x mr-2 ml-2"></i>{{ photo.comments }}
+</div>
+
+Vamos adicionar um card:
+<div class="card border-light text-center">
+    <h4 class="card-header">TITULO DO CARD</h4>
+    <div class="card-block text-justify">
+        <!-- aqui entra o conteúdo -->
+    </div>
+</div>
+
+Porém, como é algo compartilhável pela aplicação, posso usar em outros lugar, vou criar as pastas para conteudos compartilhados e inserir o car em src/app/shared/componentes/card
+
+Também irei criar um modulo para o card, porque um componente não pode fazer parte de declarations de vários modulos, e eu não posso importar o componente nesses módulos porque ele não é um módulo. Para resolver esse problema, vamos importar o modulo criado.
+Resolvendo tudo isso, adicionamos o card em photos.component.html:
+
+<ol class="list-unstyled">
+  <li *ngFor="let cols of rows" class="row no-gutters">
+    <div *ngFor="let photo of cols" class="col-4">
+      <app-card>
+        <app-photo
+          [url]="photo.url"
+          [description]="photo.description">
+        </app-photo>
+        <div class="text-center p-1">
+          <i aria-hidden="true" class="fa fa-heart-o fa-1x mr-2"></i>{{ photo.likes }}
+          <i aria-hidden="true" class="fa fa-comment-o fa-1x mr-2 ml-2"></i>{{ photo.comments }}
+        </div>
+      </app-card>
+    </div>
+  </li>
+</ol>
+
+Se testarmos, iremos ver que não mostra as fotos. Se testar por titulo no card, o título é mostrado, mas não as fotos. Isso acontece porque não colocamos uma tag identificando onde colocar o conteúdo inserido dentro do app-card. Então, para isso, usamos a tag:
+<ng-content></ng-content>
+
+A ideia de Angular é que nós vejamos o minimo de html na hora de trabalhar. Se houver um trecho grande de html, analisar porque ele pode ser um forte candidato a se tornar um component, que é o caso do filtro.
+
+Porém, ao componentizar o filtro, encontramos um problema: o filtro não está sendo aplicado, e isso acontece porque o componente ficou isolado, e quando eu interagir com ele, ele precisa se comunicar com outro componente.
+Vamos fazer a comunicação entre o elemento filho com o elemento pai
+No template do pai:
+<app-search
+  (onTyping)="filter = $event">
+</app-search>
+
+No componente filho:
+@Output() onTyping = new EventEmitter<string>();
+ngOnInit(): void{
+    this.debounce
+      .pipe(debounceTime(300))
+      .subscribe(filter => this.onTyping.emit(filter));
+  }
+o valor de $event vai receber o valor emitido por this.onTyping.emit(filter))
+
+Se quisermos que, ao passar o mouse emcima de um card, ele fique um pouco mais escuro, como faria? Poderiamos pensar no :hover do css, porém e se quiséssemos aplicar em muitos componentes diferentes? Haveria replicação de código. Então, vamos pegar esse comportamento geral em um único lugar para podermos usar em qual componente quisermos.
+Para fazer isso, vamos criar nossa primeira diretiva.
+Todo componente é uma diretiva, porém ele tem um template. Uma diretiva não tem um template.
+Para uma boa organização, vamos adicioná-las em uma pasta, para facilitar futuramente quanto usarmos testes associados a ela. Vamos criar na pasta shared/directives/darken-on-hover
+Criamos os arquivos darken-on-hover.directive.ts e darken-on-hover.module.ts;
+[darken-on-hover.directive.ts]
+import { Directive } from '@angular/core';
+
+@Directive({
+  selector: '[appDarkenOnHover]'
+})
+export class DarkenOnHoverDirective{}
+
+O selector é dessa forma porque a ideia da diretiva é passá-la como atributo diretamente na tag ou no componente, por isso o nome do selector deve ser entre colchetes[]. Por exemplo:
+<a appDarkenOnHover></a>
+
+Onde vamos utilizá-la:
+<div *ngFor="let photo of cols" class="col-4" appDarkenOnHover>
+      <app-card>
+        <app-photo
+          [url]="photo.url"
+          [description]="photo.description">
+        </app-photo>
+        <div class="text-center p-1">
+          <i aria-hidden="true" class="fa fa-heart-o fa-1x mr-2"></i>{{ photo.likes }}
+          <i aria-hidden="true" class="fa fa-comment-o fa-1x mr-2 ml-2"></i>{{ photo.comments }}
+        </div>
+      </app-card>
+</div>
+
+Primeira coisa que preciso saber: quando a diretiva ta pendurada em um elemento, como acima, eu quero ter acesso ao elemento do DOM da qual a diretiva foi pendurada. Ou seja, ter acesso ao elemento do DOM de <div *ngFor...>
+
+Para isso, na diretiva vamos adicionar o constructor(el: ElementRef){}, pois esse ElementRef vai pegar o elemento do DOM a qual a diretiva ta associada e vai fornecer à diretiva uma referência a esse elemento, para que ela possa manipulá-la.
+O ElementRef é a ultima 'casquinha" protegendo o elemento nativo do DOM.
+Vamos adicionar o decorator HostListener, onde posso passar qual elemento eu quero responder do elemento host, do elemento hospedeiro na qual minha diretiva está pendurada.
+export class DarkenOnHoverDirective{
+  constructor(el: ElementRef){
+
+  }
+  @HostListener('mouseover')
+  darkenOn(){
+    console.log('darkerOn');
+  }
+  @HostListener('mouseleave')
+  darkenOff(){
+    console.log('darkenOff');
+  }
+}
+Ao importar o módulo em photo-list.module.ts, Vemos que já está funcionando.
+Se na diretiva, usar this.el.nativeElement, dentro do método darkenOn ou darkenOff, eu tenho acesso ao elemento nativo do DOM, podendo manipulá-la igual faziamos em javascript, mas não é isso que vamos fazer.
+Vamos manipular o servidor atraves de uma ferramenta do angular chamada Render. Esse módulo Render permite manipular o DOM sem escrever diretamente o que se deve fazer. Se você faz uma renderização do lado do servidor, não há DOM do lado do servidor.
+Então, usando o render para manipular o DOM, você está garantindo que não vai dar problema na hora da renderização do backend e etc.
+Nota: Renderer ta depravado, em versões mais novas usar Renderer2
+
+@Directive({
+  selector: '[appDarkenOnHover]'
+})
+export class DarkenOnHoverDirective{
+  constructor(
+    private el: ElementRef,
+    private render: Renderer2){
+
+  }
+  @HostListener('mouseover')
+  darkenOn(): void{
+    this.render.setStyle(this.el.nativeElement, 'filter', 'brightness(70%)');
+  }
+  @HostListener('mouseleave')
+  darkenOff(): void{
+    this.render.setStyle(this.el.nativeElement, 'filter', 'brightness(100%)');
+  }
+}
+
+Agora, e se eu quiser mudar esse valor de brightness, para adaptar de acordo com o componente? Adicionando uma inbound property:
+@Input() brightness = '70%';
+this.render.setStyle(this.el.nativeElement, 'filter', `brightness(${this.brightness})`);
+Agora, se eu quiser mudar esse valor, em photo-list.component.html:
+<h1 style="background: red; text-align: center; color:white" appDarkenOnHover brightness="20%">Photos</h1>
+
+
