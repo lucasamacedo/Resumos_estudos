@@ -1,0 +1,226 @@
+02.
+a.Fazer o Login usando o token presente no conteudo do cabeçalho da web chamado x-access-token.
+
+Token = crachá. Você só loga uma vez até expirar o token. Qualquer requisição que necessite de autenticação, você vai enviar o token válido, para se autenticar.
+.pipe() -> Entre a execução da operação, e o subscribe, eu vou executar um código arbitrário.
+vou usar pipe para receber o cabeçalho x-access-token antes do subscribe.
+observe : 'response' no post -> significa que "eu vou ter acesso ao cabeçalho, a tudo que tem direito da resposta"
+
+b. Armazenar o token
+
+windows.localStorage.setItem('authToken', authToken); -> acessa o armazenamento local do navegador, dá um identificador à informação "authToken" e insere o valor authToken. Para guardar um objeto, é necessário serializá-lo.
+Como acessar localStorage: F12 -> aba application > Local Storage
+
+Para facilitar a vida, vamos criar um serviço responsável para a manipulação do token
+return !!this.getToken() -> converte o valor para booleano
+Vamos injetar o token service no auth service
+
+c. discutir a segurança do token
+
+Usa diversos algoritmos possíveis para a codificação. Exemplo: HMAC SHA256. É a junção de 3 informações, e codificada na base 64.
+Não usar JWT como sessions token, ao invés disso usar uma sessão regular no lado do servidor.
+
+d. criar cabeçalho mostrando informações do usuário autenticado
+
+Para isso, vamos criar um componente para o header, com o template inserido um código já feito.
+Só que, para usar esse componente header, já que vou usar em outro componente, então ele precisa ser declarado dentro de um módulo. Para isso, cria-se o core.module.ts, para garantir que ele seja exibido, sem problemas, independente do lugar.
+
+Surgiu um problema: a barra de Search sumiu! Isso ocorreu porque usamos, no cabeçalho a posição fixed, precisamos fazer um espaçamento para afastar o header dos demais conteúdos.
+
+3
+a. Separação de responsabilidades
+
+Queremos exibir a informação do usuário logada, que está no Payload do JWT que guardamos no LocalStorage, descriptografar o token, para pegar o nome do usuário e colocar no campo
+
+Para a descriptografia, vamos instalar o package jwt-decode: npm install jwt-decode
+
+Vou criar o serviço user.service, que vai armazenar o token com o auxílio do token.service e retornar o usuário logado
+Vamos usar um Subject UserSubject. Subject é aquele cara que pode emitir um valor para ele e se inscrever para receber esse valor.
+Quando eu efetuar meu login, vou emitir uma informação que é os dados do usuário do payload desse token, para quem se inscreveu.
+Criaremos uma interface para definir todas as propriedades que estão lá no payload do token.
+Agora, preciso descriptografar o token para obter seus dados. Como eu tenho certeza que as propriedades do payload é igual à da interface, vou fazer um cast para esse dado da interface (const user = f(x) as User)
+Então, vou emitir esses dados no userSubject.
+
+Porém, se o usuário fechar a aplicação e abrir a aplicação, não vai fazer esse processo todo, então inclui esse processo também no constructor, para que, se houver token, vai realizar esse processo.
+Quem chamar getUser() vai receber um Observable, para poder fazer um subscribe()
+
+b. o papel do BehaviorSubject
+
+Boa prática para nome de Observable: user$, para indicar que vai guardar o valor de um Observable.
+Como é um Observable, vamos nos inscrever nele, e guardar as informações em uma outra variável do tipo User.
+Problema: se recarregar a página, some o nome do usuário.
+Causa: user.service vai ser criado antes do header.component ser renderizado na tela. Então, o serviço ta fazendo as ordens direitinho, e emitindo o valor do usuário, mas o header.component, como ainda não está carregado, não vai ouvir essa emissão, e ela é perdida.
+Aí que entra o BehaviorSubject, que emite um valor padrão logo de cara, assim que ele é criado. E funciona. Por quê?
+Porque ele emite um valor. Se ninguém consumiu esse valor, ele fica guardando esse valor. Quando alguém aparecer dando subscribe, vai ter acesso ao último valor emitido pelo BehaviorSubject.
+Nesse caso, o header.component, quando dar subscribe, vai pegar esse valor guardado, e recupera, com sucesso, o dado username logado.
+
+c. Async pipe
+
+Aqui vamos exibir informação do usuário se estiver logado, e se não, exibir uma mensagem de "please, login".
+É possível o template acessar o valor direto do Observable, sem precisar de todo aquele código para se inscrever nele para obter os dados. É como se o template fizesse um subscribe e, na hora que o valor chegasse, exibisse.
+Vamos fazer isso usando o async pipe:
+<div *ngIf="(user$ | async) as user; else login">
+Interessante do async também, é que se usado em um BehaviorSubject, ele se encarrega de fazer o OnDestroy dele.
+
+d. Criando o logout
+
+Para fazer o logout, primeiro vamos remover o Token. Após isso, o userSubject tem que emitir o valor null. E no HeaderComponent, criar um método logout() onde 
+vai fazer o logout no userService associado, e redirecionar para a página de login.
+
+e. Route Guards
+
+Surgiu um problema: queremos proteger as rotas, pois atualmente, se o usuário está logado, por exemplo, e tentarmos acessar o endereço de login, ele irá para essa página, mesmo logado.
+Então, vamos proteger essas rotas utilizando Route Guards.
+Para saber se alguém vai ter acesso a determinada rota, vamos pedir ajuda ao userService. Vamos descobrir se o usuário está logado vendo se ele possui um token. Para isso, no AuthGuard, vamos usar uma interface chamado CanActivate, e o método canActivate() retorna true se tenho acesso a rota à que ele foi aplicado, e false se não.
+Ao adicioanr o AuthGuard no app.routing.module.ts, deve-se por entre [AuthGuard], pois pode ter mais de um AuthGuard com uma responsabilidade diferente
+
+No tipo de retorno de um método, utilizar | indica que ele pode retornar mais de um tipo, exemplo: boolean | Observable<boolean>
+
+Dica: Sempre que por um AuthGuard nas rotas, reinicia o ng s -o, para evitar bugs, porque o Angular se perde nas rotas.
+
+Se o AuthGuard impedir o acesso à pagina de login, vou retornar para o perfil do usuário, onde há as fotos.
+
+f. Usando routerLink para fazer login de usuário
+
+Se eu não estou logado e vejo as fotos de alguem no perfil dessa pessoa, faz todo sentido para a aplicação, e se eu quiser me logar para interagir com as fotos (like, comentario, etc), nada mais justo que ao clicar na mensagem "Please, login!" ele redirecione para a página de login. Como você faria isso? Poderia pensar em usar <a href="/">, porém, ao fazer isso, ele irá recarregar TODA a página do zero, o que demora, apenas para fazer isso, e como estamos numa SPA, não queremos isso.
+Vamos resolver isso com RouterLink, que é do formato:
+<a [routerLink] = "['user', 'flavio']">
+
+4.
+
+a. Implementando o SignUp
+
+Vamos criar um componente para isso, na pasta home, sem um selector, pois não pretendo chamar ele no template de outro componente, já que seu escopo é de página.
+Houve um erro, pois o template de signup está usando um form, e o angular, por padrão, tenta colocar um controlador de formulário, sem que você peça, e ele só consegue fazer isso se você importar um FormsModule. Mas, como vamos validar baseada no model, vamos importar o ReactiveFormsModule. Mas, como ainda não usei a diretiva FormsGroup e não fiz a associação, ele vê que não tem controlador e adiciona o controlador por padrão dele, que precisa do FormsModule. Então, vamos importar o FormsModule apenas para o erro sumir.
+
+b. Validação do formulário
+
+Para fazer uma validação baseada no modelo, vamos primeiro criar uma propriedade do tipo FormGroup. Para poder criar o formulário, preciso injetar um formBuilder. Para validar um campo, se passa um array de validadores, como por exemplo -> email: ['', [Validators.required, Validators.email]].
+Para usar uma RegEx para validação, usa-se Validatos.pattern(regex).
+Após feito a validação no component, linkar com o template adicionando nos campos formControlName="name".
+
+c. Criando nosso próprio validador
+
+Os validators que criarmos se adiciona dentro de uma pasta Validators dentro de shared.
+Validator é uma função (function) recebendo como parâmetro uma variavel do tipo AbstractControl
+Se não houve erros no validator, retornaremos null. Caso houve, retornaremos um objeto que vai ter uma propriedade que vamos definir, e que vai receber true.
+ESsa propriedade vamos usar no template, para saber se houve um problema na validação.
+str.value.trim() = string diferente de branco.
+
+No validator, vamos verificar se há valor no control.value, e negando se satisfaz uma certa regex que vamos criar.
+
+d. Validador assíncrono
+
+Para melhorar nosso signup, temos que impedir que ele cria uma conta com um username já existente.
+Para isso, vamos criar um serviço SignUpService, que vai realizar essa checagem. O problema é que meu validador vai precisar injetar o SignUpService para realizar a verificação, mas o validador não suporta a injeção de dependência, então vamos ter que ver um jeito de contornar isso.
+Então, vamos criar um serviço com um método que, quando chamado, vai retornar uma função de validação, que vai ter acesso ao serviço.
+Após criada esse serviço, e usar o retorno do método, de primeira pensamos em adicionar junto com os outros campos de validators, porém NÃO podemos fazer isso, pois no array daqueles validators padrão só entra validators SÍNCRONOS. Os validadores assíncronos é o terceiro parâmetro no validador, logo após o array dos validadores síncronos.
+
+Um validador assíncrono não retorna null ou um objeto javascript, ele retorna um Observable, que ao ser acessado pelo framework de validação do Angular, vai saber pegar o valor final que, aí sim, vai ser null ou um objeto.
+control.value é o que você digitou, control.valueChanges é um observable.
+Vou adicionar um debounceTime para apenas fazer essa verificação a cada 300 ms.
+Vamos usar também um switchMap, que basicamente para de escutar as outras emissões para focar na emissão do observable passado para ele.
+Depois, vamos mapear um isTaken,  para caso existir, retorne um objeto { userNameTaken: true}, para sinalizar o erro de validação.
+Porém, não vai funcionar, porque o Angular vai fazer o subscribe, porém para pegar o valor do subscribe, precisamos informar que ele completou em algum momento, e não estamos fazendo isso, logo o sistema de validação vai ficar ouvindo o tempo inteiro.
+Para resolver isso, vamos utilizar o operador first (do rxjs/operators), onde diz: O primeiro valor que eu emitir, vou pegar esse valor e completar esse cara.
+
+Mas muito cuidado, sempre que fazer uma validação assíncrona no angular, é necessario também testar se tem algo pendente no formulario 
+(exemplo: <button [disabled]="signupForm.invalid || signupForm.pending" class="btn btn-primary btn-block">)
+
+e. Submissão de dados
+
+Podemos pegar os dados brutos, em forma de objeto, do formulário usando const newUser = this.signupForm.getRawValue();
+Como volta do tipo any, vamos criar uma interface para esse newUser.
+
+Vamos no signupService e enviar os dados desse newUser com uma requisição http POST para o server.
+
+5
+
+a. Rotas filhas
+
+Agora, queremos colocar, no canto esquerdo, uma imagem, na tela do sign up e do login. E não quero ir na página dos dois e adicionar individualmente a imagem.
+Para isso, vamos criar um HomeComponent, que vai ser o primeiro componente a ser carregado, e ele vai ter a imagem e um router-outlet. Ou seja, ele no home, vai poder exibir o resultado de alguma rota, assim como o app fez para exibir.
+A vantagem disso é quando queremos uma parte fixa da aplicação, e vamos acessar outras rotas filhas a partir de router-outlet, preenchendo-o.
+
+Então, vamos criar um HomeComponent, e no app.routing.module.ts, vamos adicionar a rota com HomeComponent, adicionando como rotas filhas children: [] as rotas filhas de signin e signup.
+Quando o path da rota pai é o mesmo de uma rota filha, é a rota filha que vai ser exibida primeiro.
+
+A ideia da rota filha, é ter uma rota pai, e as rotas filhas serem renderizadas dentro do router-outlet dentro dele.
+
+Agora, vamos adicionar o focus no campo username e no email.
+
+
+b. Build do projeto
+
+Para realizar o build, executa o comando ng build --prod.
+Quando estiver pronto, estará dentro da pasta dist, e é essa pasta que você vai colocar no servidor apache, php, java etc.
+Para o angular fazer essas rotas de aplicação, o HTML5Mode. Por debaixo dos panos, ele utiliza a History API do navegador, para conseguir ter as urls bonitas como localhost:4200/signup sem precisar por o # como localhost:4200/#/signup, porque isso é uma técnica antiga, já que se colocasse um endereço como localhost:4200/signup, ele iria mexer no location, e ia no backend executar a requisição, então usava-se o #, que não disparava um carregamento no backend.
+Para eu não utilizar o #, além do navegador precisar ter suporte a History API,  o backEnd (em que você está hospedando o Angular,e não o da API) precisa estar programado para, qualquer requisição feita para ele, ele retornar index.html.
+
+Para usar o # no angular, em app.routing, importar no modulo RouterModule.forRoot(routes, { useHash: true })
+
+Nota importante de relembrar: o Angular só dá suporte às duas ultimas versões do navegador no mercado.
+
+c. Lazy loading e code splitting
+
+Olhando os arquivos gerados no build do projeto que fizemos, tem um arquivo main que tem 339 KB, que contém todo os códigos que fizemos. Porém, como é uma SPA, lembre-se que ele vai carregar tudo isso, então conforme isso escala de tamanho, o arquivo pode ficar muito grande, e o usuário esperar muito tempo até conseguir ver a aplicação.
+
+Como solucionar isso? Fazendo uma separação de código do nosso programa (code splitting). Assim, definimos quais módulos queremos separar para carregá-los sob demanda. Então:
+Code splitting: essa separação feita de código
+Lazy loading: o Angular não vai carregar tudo primeiro, vai carregar alguns módulos apenas se precisar, caso seja acessado.
+
+Então, o primeiro módulo que vamos fazer um lazy loading é do HomeModule, porque muitos usuários vão querer olhar as fotos do usuário, para aí sim depois, decidir se vai logar.
+Para fazer o lazy loading, o feature model (home) precisa definir o arquivo de rotas dele.
+
+d. Implementando o Lazy Loading
+
+Antes de implementar o lazy loading, vamos organizar as rotas para facilitar a enxergar como o lazy loading funciona.
+path: '',
+pathMatch: 'full',
+-> com pathmatch full, é exatamente o endereço localhost:4200/, sem o full consideraria tipo localhost:4200/teste/
+
+Aqui, na base raíz da aplicação, redirecionamos para a página home.
+
+Como quero carregar o HomeModule sob demanda, vou criar o home.routing.module.ts
+Assim, qualquer modulo que você quiser carregar com lazy loading, vai ter seu proprio arquivo de rotas.
+A HomeRoutingModule vai estar subordinada a uma rota definida no pai. No pai, vou definir uma rota home, e carregar HomeRouting. Logo, o path inicial '' significa home/
+
+Detalhe: Na hora de montar as rotas, deve ser RouterModule.forChild(), e não .forRoot. O único q pode usar forRoot é o app.routing.module
+
+Detalhe IMPORTANTE: se você quer carregar um modulo por lazy loading, ele não pode estar importado no app.module, senão vai estragar o lazy loading.
+
+Preciso também importar o HomeRoutingModule no HomeModule.
+Em app.routing.module, para definir o carregamento sob demanda da rota filho, usase:
+path: 'home',
+loadChildren: './home/home.module#HomeModule' -> nome do arquivo do modulo (sem .ts) e o nome da classe dentro desse arquivo.
+
+Então, basicamente, a ordem das coisas é:
+Quando a rota home for acessada, o angular vai carregar o modulo HomeModule, que vai carregar o módulo com todas suas definições de rotas. Então, o path:'' significa o home que estou, então carrega HomeComponent. Mas, como o template do HomeComponent tem o <router-outler>, digo para carregar o SignInComponent para o path: '', que é o proprio home.  E se eu acessar signup, vou acessar home/signup.
+
+Ao fazer o build do projeto, percebemos que tem dois arquivos, o main e o módulo que será carregado sob demanda.
+Dica: normalmente, para cada item de um menu, vai carregar uma funcionalidade com um escopo de página, então elas podem ter cada uma sua feature module, e carregar com seu proprio arquivo de rotas.
+
+e. Refinando o uso de serviços
+
+Vamos refinar os serviços, como user-not-taken.vaildator.service.ts, que está como o injectable providedIn: 'root', significando que esse serviço vai ser registrado no app.routing.module, estando disponivel para todos os artefatos importados no app.routing.module.
+
+Vamos refinar user-not-taken-validator-service.ts, como ele só eé usado pelo signup component, vamos dizer no decorator que o provider dele é UserNotTakenValidatorService.
+
+No SignUpService, retira o providedIn: root, ficando @Injectable(), então vou em home.module.ts e adiciono providers: SignUpService, assim esse serviço fica disponivel para todos os componentes do homemodule.
+
+f. Interceptadores e envio do token
+
+Agora vamos saber como enviar o token pro backend, para poder fazer comando como, por exemplo, ser possivel excluir a foto apenas quem é o dono do perfil, e não outras pessoas. 
+Então, vamos fazer com que todas as requisiçoes posteriores ao login, vamos enviar o token, de forma automatizada, para não ter que enviar esse token a cada serviço que eu criar.
+Para resolver isso, usamos os interceptadores do HttpClient. Vamos criar um interceptador, que vai verificar se o usuário está logado, pegar seu token e anexar ao cabeçalho da requisição.
+
+O HttpInterceptor é o componente do interceptor.
+
+A ideia é: ele vai interceptar, se não fazer nada vai retornar a requisição inalterada, e deixá-la 'passar' para o backend. 
+
+Além disso, é preciso fazer algo a mais para funcionar. Por debaixo dos panos, é como se o Angular colocasse, por padrão, um interceptador no HttpClient que não faz nada, e eu quero dizer para o Angular que quero usar meu interceptador, e não o interceptador padrão dele.
+Para fazer isso, no core.module.ts, vamos adicionar no providers: [{provide: HTTP_INTERCEPTORS, useClass: RequestInterceptor, multi: true}]
+Esse trecho significa: Que classe vou usar cada vez que um http interceptor for solicitado? E o multi significa que pode ter mais de um interceptador na jogada, e então quero que delegue para o proximo e assim sucessivamente.
+
+Agora, sabemos pegar um token obtido na autenticação, e enviá-lo para o backend, e num momento que nos depararmos com algum recurso que precisa de autenticação na aplicação, teremos acesso ou seremos barrados se não estivermos autenticados.
+
