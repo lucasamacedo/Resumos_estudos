@@ -1,0 +1,118 @@
+Quais os benefícios que padrões de projeto trazem a um sistema OO?
+
+Padrões de projeto são alternativas para que o desenvolvedor consiga escrever código com responsabilidades mais bem definidas, com um baixo acoplamento, e que evolua de maneira natural. Características essas que não são encontrados em sistemas procedurais, que tipicamente apresentam código complexo, cheio de ifs, e que fazem muita coisa, tornando a manutenção custosa.
+
+Códigos que fazem bom uso de OO evoluem geralmente não pela adição de mais um if, mas sim pela criação de mais uma estratégia, mais um observador, mais um estado, e assim por diante.
+
+Padrões de projeto no fim apenas fazem bom uso da orientação a objetos, e seus conceitos e mecanismos, como encapsulamento, abstrações, interfaces, polimorfismo, e etc.
+
+
+Padrão 1: Strategy
+
+O que é Design Pattern:
+Um padrão de projeto é uma solução elegante para um problema que é recorrente no dia-a-dia do desenvolvedor.
+
+Ou seja, por mais que desenvolvamos projetos diferentes, muitos dos problemas se repetem. Padrões de projeto são soluções elegantes e flexíveis para esses problemas.
+
+Quando devemos aplicar Strategy?
+
+O padrão Strategy é muito útil quando temos um conjunto de algoritmos similares, e precisamos alternar entre eles em diferentes pedaços da aplicação. No exemplo do vídeo, temos diferentes maneira de calcular o imposto, e precisamos alternar entre elas.
+
+O Strategy nos oferece uma maneira flexível para escrever diversos algoritmos diferentes, e de passar esses algoritmos para classes clientes que precisam deles. Esses clientes desconhecem qual é o algoritmo "real" que está sendo executado, e apenas manda o algoritmo rodar. Isso faz com que o código da classe cliente fique bastante desacoplado das implementações concretas de algoritmos, possibilitando assim com que esse cliente consiga trabalhar com N diferentes algoritmos sem precisar alterar o seu código.
+
+Padrão 2: Chain of Responsibility
+
+Problema:
+Parecido com o padrão interior, tivemos vários ifs que decidiam se aplicavam determinada regra de negócio, então aplicamos a estrategia anterior. Porém, nesse caso, vimos que ainda persistirá ifs, pois a execução de uma regra precisa ter informação se as outras anteriores não executaram, pois apenas uma regra precisa ser executada. Então, adicionamos na classe Desconto uma propriedade Desconto Proximo, criando uma cadeia de responsabilidades.
+
+Motivação do padrão: Tenho muitas regras de negócio, mas não posso aplicar todas elas, havendo condições para aplicar, ou não.
+
+Solução: usar chain of responsibility, onde cada classe tem uma regra de negócio e sabe se deve executá-la ou não
+---
+Em quais situações se torna ideal o uso do padrão Chain of Responsibility?
+
+O padrão Chain of Responsibility cai como uma luva quando temos uma lista de comandos a serem executados de acordo com algum cenário em específico, e sabemos também qual o próximo cenário que deve ser validado, caso o anterior não satisfaça a condição.
+
+Nesses casos, o Chain of Responsibility nos possibilita a separação de responsabilidades em classes pequenas e enxutas, e ainda provê uma maneira flexível e desacoplada de juntar esses comportamentos novamente.
+---
+
+Padrão 3: Template Method
+
+É útil quando possui classes com algoritmos semelhantes, então representa-se esse algoritmo de maneira abstrata, e as implementações concretas só preenchem os 'pequenos buraquinhos'.
+As vantagens são a diminuição de repetição de código, e facilita a implementaçao das diferentes variações desse algoritmo.
+
+Quando temos diferentes algoritmos que possuem estruturas parecidas, o Template Method é uma boa solução. Com ele, conseguimos definir, em um nível mais macro, a estrutura do algoritmo e deixar "buracos", que serão implementados de maneira diferente por cada uma das implementações específicas.
+
+Dessa forma, reutilizamos ao invés de repetirmos código, e facilitamos possíveis evoluções, tanto do algoritmo em sua estrutura macro, quanto dos detalhes do algoritmo, já que cada classe tem sua responsabilidade bem separada.
+
+----
+
+Padrão 4: Padrão Decorator
+
+Serve para montar um comportamento complexo utilizando varios comportamentos simples
+
+Quando devemos aplicar o padrão Decorator?
+Sempre que percebemos que temos comportamentos que podem ser compostos por comportamentos de outras classes envolvidas em uma mesma hierarquia, como foi o caso dos impostos, que podem ser composto por outros impostos. O Decorator introduz a flexibilidade na composição desses comportamentos, bastando escolher no momento da instanciação, quais instancias serão utilizadas para realizar o trabalho.
+
+-----
+
+Padrão 5: State
+
+Quando devemos aplicar o padrão State? O que você vê de positivo e negativo nele?
+A principal situação que faz emergir o Design Pattern State é a necessidade de implementação de uma máquina de estados. Geralmente, o controle das possíveis transições são vários e complexos, fazendo com que a implementação não seja simples. O State auxilia a manter o controle dos estados simples e organizados através da criação de classes que representem cada estado e saiba controlar as transições.
+
+----
+
+Padrão 6: Builder
+
+Motivação: inicialmente, eu tinha um objeto muito complicado de ser criado, com uma lógica de criação usando foreach, e o construtor com muitos parametros sendo passados. Dessa forma, não ficava muito semantico o código.
+No padrão, damos o sufixo Builder no nome da classe criadora, por exemplo: NotaFiscalBuilder
+
+Fluent interface: interface semântica, ficando fácil de ler e entender.
+Method Chaining:
+NotaFiscalBuilder criador = new NotaFiscalBuilder();
+            criador
+                .ParaEmpresa("Caelum Ensino e Inovacao")
+                .ComCnpj("23.456.789/0011-12")
+                .ComItem(new ItemDaNota("Item 1", 100))
+                .ComItem(new ItemDaNota("Item 2", 200))
+                .NaDataAtual()
+                .ComObservacoes("Uma observacao");
+
+Quando devemos aplicar o padrão Builder? E quando ele mais atrapalhará do que ajudará?
+Sempre que tivermos um objeto complexo de ser criado, que possui diversos atributos, ou que possui uma lógica de criação complicada, podemos esconder tudo isso em um Builder.
+
+Além de centralizar o código de criação e facilitar a manutenção, ainda facilitamos a vida das classes que precisam criar essa classe complexa, afinal a interface do Builder tende a ser mais clara e fácil de ser usada.
+
+----
+
+Padrão 7: Observer
+Usa-se quando deseja realizar uma lista de ações quando determinada ação ocorrer. Esse padrão ajuda a desacoplar a aplicação, pois o objeto não conhece o que a ação vai fazer, apenas manda executá-la, permitindo que evolua bem.
+
+Quando devemos aplicar o padrão Observer?
+Quando o acoplamento da nossa classe está crescendo, ou quando temos diversas ações diferentes a serem executadas após um determinado processo, podemos implementar o Observer.
+Ele permite que diversas ações sejam executadas de forma transparente à classe principal, reduzindo o acoplamento entre essas ações, facilitando a manutenção e evolução do código.
+
+----
+
+Fim do curso 1
+
+O primeiro, e talvez mais importante ponto desse curso, é entender o bom uso de orientação a objetos, que todos os padrões de projeto fazem tanto uso.
+
+Você deve ter reparado, ao longo do curso, que todos os padrões de projeto tentam desacoplar seu código, além de criar classes coesas, com poucas responsabilidades. Para isso, todos eles fazem uso de abstrações, sejam elas implementadas através de interfaces ou classes abstratas, e separam o tempo todo as diversas responsabilidades em pequenas classes. Observe como os padrões resolveram problemas complexos do mundo procedural de maneira clara e simples. Veja as ideias por trás dele, e adapte-os para o seu problema. Lembre-se que no final, o que importa é código de qualidade.
+
+Existem ainda muitos outros padrões de projeto espalhados por aí. Padrões que visam ajudar na solução dos mais diversos tipos de problemas. Como sempre, ao ver um padrão, entenda a motivação do padrão; a razão dele existir. Não vá direto para a implementação. Um padrão é mais do que uma implementação, mas sim um conceito, uma ideia de como resolver um problema.
+
+Esperamos que essa ideia tenha ficado clara ao longo do curso. Refaça os exercícios, leia novamente as definições dos padrões que você estudou em livros ou internet, e reforce seus conceitos.
+
+Mas no final, lembre-se: o que importa é código de qualidade. Se você implementou uma solução que faz uso de boa orientação a objetos, mas não sabe qual padrão usou, não tem problema; o seu código e os outros desenvolvedores agradecem mesmo assim!
+
+
+
+Muitos desenvolvedores tentam forçar ao máximo o uso de padrões nos códigos. O que você pensa sobre isso? Usar padrões 100% do tempo é o ideal? Quais são as vantagens e desvantagens?
+
+Não. Padrões de projeto trazem grande flexibilidade ao seu código, mas isso tem um preço: complexidade. Naturalmente um código que faz uso de padrões de projeto é, do ponto de vista de implementação, mais complexo do que um código que não os utiliza. Afinal, como tudo está desacoplado, o desenvolvedor precisa entender melhor a solução para entender o que o código faz como um todo.
+
+Um bom desenvolvedor sabe fazer essa avaliação e entender quais os ganhos e perdas da utilização de um padrão. Em um problema simples de resolver, talvez o uso de um padrão de projeto não faça sentido; o código vai apenas ficar mais complicado. Agora, em problemas que são por natureza complexos, ou que demandam flexibilidade, pois mudam o tempo todo, talvez a utilização de um padrão de projeto traga benefícios, já que todos os padrões sempre agregam flexibilidade ao código gerado.
+
+Nunca se esqueça: a sua experiência é fundamental! Padrões de projeto são mais uma ferramenta. Eles devem ser um meio para se chegar à solução final, e não o "fim", ou seja, o seu objetivo principal.

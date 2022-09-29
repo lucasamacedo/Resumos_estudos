@@ -1,0 +1,40 @@
+Fluxo de ação do backend:
+View
+Controller
+Model - vai transitar em todos
+Controller chama serviço pra se virar fazer o que é pra ser feito
+Serviço chama Repository, para obter dados do banco
+Repository faz consulta no banco (por comando sql)
+SQL server: cria a tabela que vai ser usado pelo repository
+
+buscas LINQ: usa-se numa lista modelo que vai possui as informações do banco
+
+View recebe o TermosdeUso(modelo) para mostrar na tela os dados.
+Recebo TermosDeUso(modelo) da View, pois recebi os dados do form.
+Ao clicar em submit, vai cair na action PostTermosDeUso do TermosDeUsoController
+Quero dar um post no termos de uso, então vou criar uma interface de serviço chamado ITermoDeUsoService.cs
+Na interface, implemento a função PostTermoDeUso, que quero usar no controller.
+Crio o serviço TermoDeUsoService, que implementa a interface, e implemento-a de fato criando a função PostTermoDeUso.
+No controller, crio um private readonly ITermoDeUsoService _termodeUsoService; que receberei por injeção de dependência, então vou adicionar como parâmetro no construtor ITermoDeUsoService t, e atribuit ao campo privado esse t.
+Como é injeção de dependência, preciso criar essa injeção no startup, mas no caso desse projeto, é no arquivo NativeInjectorBootStrapper.cs, dentro do projeto Hub.Infra.IoC. Adiciono nela, services.AddScoped<ITermoDeUsoService TermoDeUsoService>(); Agora, posso usar o serviço no controler via injeção de dependencia
+
+Agora, no serviço, o método PostTermoDeUso tem a função de pedir para a API realizar a tarefa solicitada, e retornar a resposta da API para o controller.
+
+Essas linhas de código do hub.mvc:
+   var response = await _httpClient.PostAsync("/TermoDeUso/Post", serializedModel);
+Significa que vou fazer uma requisição para o controler TermosDeUsoController Action Post. Então, vamos criar essa action na API para realizar a tarefa.
+
+<A partir daqui, mexemos na API para realizar a tarefa>
+
+O controller da api vai pedir para o serviço TermoDeUsoService da api realizar o Post, e vai retornar o resultado para a Aplicação Hub.mvc.
+public async Task<IActionResult> Post(TermoDeUso model)
+A função recebe o objeto serializado e já deserializa para a classe de modelo TermoDeUso. Temos que criar essa classe modelo TermoDeUso dentro da Hub.Domain. Então, passamos adiante para a nossa requisição.
+
+Então, de forma semelhante à aplicação, vamos usar injeção de dependencia no serviço para usá-lo no controller.
+Para isso, vamos criar, em Hub.Application, a interface ITermodeUsoService.cs.
+E agora, vamos implementar a interface no serviço TermoDeUsoService.cs, que também fica no projeto Hub.Application.
+
+A classe de serviço precisa acessar o banco de dados para realizar a requisição, então vai chamar o repository para fazer esse acesso. Então, vamos criar a interface do repositorio, para depois criar o repositorio que a implementa. A interface e o repositorio fica em Hub.Infra.data
+
+Na interface do repositorio, cria o metodo post, e implemente a interface no repositorio
+

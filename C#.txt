@@ -1,0 +1,271 @@
+Interfaces explícitas, quando usar: Quando desejo implementar duas ou mais interfaces, que tenham o mesmo nome de método/propriedade/etc, mas que exijam implementações diferentes.
+
+Exemplo:
+interface IFuncionario
+{
+	int CargaHorariaMensal { get; set; }
+}
+interface IPlantonista
+{
+	int CargaHorariaMensal { get; set; }
+}
+classFuncionario: IFuncionario, IPlantonista
+{
+	int IFuncionario.CargaHorariaMensal { get; set; }
+	int IPlantonista.CargaHorariaMensal { get; set; }
+}
+(na função main):
+Funcionario funcionario = new Funcionario(1500);
+((IFuncionario)funcionario).CargaHorariaMensal = 168;
+((IPlantonista)funcionario).CargaHorariaMensal = 32;
+
+Classe base: é uma classe que é herdada por outras classes, porém a transformamos em uma classe base quando não queremos que ocorra uma instanciação direta dela, afinal ela só vai servir de classe base para as classes filhas.
+Para impedir essa instanciação direta, a trasnformamos numa classe abstrata (abstract)
+
+sealed class: Utilizamos quando queremos proibir outras classes de herdarem dessa classe. Um dos motivos da existência desse tipo de classe é evitar que haja muitas heranças atrás de heranças de uma classe, o que acaba afetando o desempenho quando o framework for procurar qual método acessar dentre as várias classes herdades
+
+---
+
+Equals: se usado em uma classe, como aluno1.Equals(aluno2), retornará false porque são instancias diferentes (endereço de memória diferentes), não importando o valor que possuem em suas propriedades.
+Para comparar classes pelo seu conteúdo, utilizamos metodo override:
+
+Utilizando Equals, há um warning na compilação dizendo que o método GetHashCode não está implementado. Esse método serve para otimizar a busca ao utilizar um tipo de coleção ou conjunto. Ou seja, se não tiver esse método, pode perder desempenho.
+
+Para ordenar uma lista de classes, ela precisa implementar a interface IComparable, e definir os critério de comparação no método CompareTo
+
+
+---
+
+Uma exceção interrompe o código e impede que a instancia de uma classe seja criada (se usada dentro de uma).
+
+Para simplificar essa expressão:
+if (OnPrazoMaximoEstourado != null)
+{
+	OnPrazoMaximoEstourado(this, new EventArgs());
+}
+Podemos utilizar:
+OnPrazoMaximoEstourado?.Invoke(this, new EventArgs());
+
+O operador ? só vai acessar se não for nulo, é parecido com o safenavigator operator do angular/typescript.
+?.Invoke significa que, se não for nulo, então ele vai invocar o método (evento). Caso contrário, ele não faz nada, e não lança uma exceção.
+
+
+Ordem de precedência de operadores:
+Operadores primários
+Operadores unários
+Operadores de teste de tipo e relacional
+Operadores de igualdade
+Operador XOR lógico
+Operador OR lógico
+Operador AND condicional
+Operador OR condicional
+Operador de coalescência nula
+Operador condicional
+
+Diretiva de compilação (pré compilação):
+
+#if (DEBUG)
+            arquivo = ARQUIVO_LOG_TESTE;
+#else
+            
+            arquivo = ARQUIVO_LOG_PRODUCAO;
+#endif
+
+A diretiva de compilação if não trabalha durante o tempo de execução, ela não existe ao compilar o código, só existe no código fonte (enquanto estamos desenvolvendo a aplicação)
+Essa diretiva de pré compilação if decide, antes da compilação, qual trecho de código será adicionado ao código fonte.
+
+
+Com a estrutura Do While, o código é executado pelo menos uma vez, antes de fazer a verificação da condição do while.
+
+
+break sai apenas da estrutura de repetição em que ele está contido. Logo, se há estruturas (por exemplo, for) alinhadas, ele só vai interromper a estrutura mais interna.
+
+
+IDisposable: o método Dispose() libera recursos não gerenciados
+Dispose() também libera recursos gerenciados
+
+Using: Usa o recurso e já libera. Só posso usar using em classes que implementam a interface IDisposable
+using (MensageiroNotepad mensageiro = new MensageiroNotepad())
+     {
+          mensageiro.EnviarMensagem(txtMensagem.Text);
+     }
+}
+equivalente a:
+MensageiroNotepad mensageiro = new MensageiroNotepad();
+mensageiro.EnviarMensagem(txtMensagem.Text);
+mensageiro.Dispose();
+
+Concatenar strings como:
+string a = "teste1"
+a += ", teste2"
+A cada concatenaçao, é criada uma nova string resultante, e a string antiga vai ficar na heap, sem referência, e alguma hora irá ser liberada pelo garbage collector.
+
+Para evitar esse 'abandono' da variável antiga, usa-se a classe StringBuilder
+
+Por padrão, o console não exibe caracteres especiais no console, como "•". Para fazer essa exibição, precisamos adicionar:
+
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+Porque utilizar StringWriter, se ele tem, internamente, um método StringBuilder? Porque se você precisar utilizar algum objeto que implementa a classe abstrata TextWriter, dá para trabalhar diretamente com o StringWriter, ao inves de ter que adaptar o StringBuilder.
+
+Formatando strings
+
+String.Format("{0:dd/MM/yyyy}", DateTime.Today");
+equivalente a "{0:d}"
+
+"{4:hh:mm}" -> usa periodo de 12 horas
+"{4:HH:mm}" -> usa periodo de 24 horas
+"{4:T}" -> 18:00:00
+"{4:t}" -> 18:00 (se tiver com o formato dos eua, vai ficar 6:00 PM)
+"{3:C}" -> Formato de moeda
+"{3:C0}" -> Formato de moeda com 0 casas decimais
+"{7:D}" -> quarta-feira, 26 de maio de 2021
+
+Como mudar o formato para br:
+System.Globalization.CultureInfo.CurrentCulture 
+                = System.Globalization.CultureInfo.CreateSpecificCulture("pt-BR");
+
+Problemas do String.Format: pode-se escolher um índice errado em {0}, ou um indice inexistente.
+
+A forma alternativa de fazer essa formatação é usando a interpolação de strings. (foi introduzido com a vessao 6 do C#)
+
+@ permite a quebra de linhas dentro de uma string
+$ permite a interpolaçao de strings
+
+Pt6.
+
+Quando você deveria usar serialização nos seus programas?
+
+A serialização em aplicações é bastante comum em conjuntos de dados pequenos e estruturados, tais como um arquivo de configurações com as predefinições para o funcionamento de uma aplicação (um arquivo App.config, por exemplo). Porém, a serialização não é indicada para um conjunto enorme de informações, tal como um banco de dados, ou quando as informações precisam ser atualizadas com frequência.
+
+Ctrl + K + D -> formata o código
+
+Problemas de utilizar a classe JavaScriptSerializer: Se na deserialização, o JSON for convertido em outro tipo de objeto, diferente do original, haverá muito trabalho. Além disso, a classe depende de um pacote System.Web.Extensions, não disponivel em sistemas modernos, pois não é suportada pela plataforma .NET CORE.
+
+Mapeamento XML x JSON(Newtonsoft)
+
+[XmlRoot("Nome")] x [JsonObject("Nome")]
+[XmlArray("Nome")] x [JsonProperty("Nome")]
+[XmlIgnore] x [JsonIgnore]
+[XmlType("Nome")] x [JsonObject("Nome")]
+[XmlElement("Nome")] x [JsonProperty("Nome")]
+[XmlProperty("Nome")]
+
+Serialização binária: grava no arquivo um retrato dos dados de uma maneira engessada, fazendo com que quando você extrai os dados de um objeto atraves de uma serialização binária, você só pode retornar esses dados para o mesmo tipo de objeto, ou seja, o retorno tem que ser a mesma classe inicial de entrada.
+
+Porquê usar contrato de dados: Para utilizar alguns tipos de projetos como WCF, que exigem que os dados trafegados sejam aderidos ao contrato de dados.
+
+Usando contrato de dados:
+LojaDeFilmes loja = ObterDados();
+
+            var serializer = new DataContractSerializer(typeof(LojaDeFilmes));
+
+            using (var fileStream = new FileStream("Loja.xml", FileMode.Create, FileAccess.Write))
+            {
+                serializer.WriteObject(fileStream, loja);
+            }
+
+[DataContract]
+[DataMember]
+[IgnoreDataMember] - Caso queira explicitar que quer ignorar o campo, pois por padrão ele ignora campos não marcados com [DataMember]
+
+Qualquer dado pode ser serializado?
+
+A serialização mais comum, baseada em texto, como XML e JSON, não permite a serialização de dados além do tipo texto ou numérico. Somente a serialização binária permite a serialização de quaisquer tipos de dados.
+
+A serialização armazena todos os elementos de uma classe?
+
+Não.
+
+A serialização nunca irá armazenar:
+
+Métodos da classe
+Elementos estáticos da classe
+A serialização binária irá armazenar os membros de dados públicos E privados.
+
+Já a serialização por contrato de dados pode armazenar membros de dados privados como XML.
+
+                                              ARRAYS
+
+Como declarar arrays:
+string[] empresas = new string[3];
+string[] empresas = new string[] {alura, caelum, casaDoCodigo};
+string[] empresas = { alura, caelum, casaDoCodigo };
+
+Operações em Arrays:
+Array.IndexOf(empresas, "texto procurado"); - Indice da primeira ocorrencia do texto procurado
+Array.LastIndexOf(empresas, "texto procurado"); - Indice da última ocorrencia do texto procurado
+Array.Reverse(empresas); - Inverte os elementos do array
+Array.Resize(ref empresas, 3); - Redimensiona o array (cria um array com o tamanho desejado, e passa uma referência a esse array criado)
+ref - passa a referência à variável (endereço dela)
+
+Array.Sort(empresas) - Ordena o array
+Array.Copy(empresas, 1, copia, 0, 2) - copia (cópia superficial/shallow) 2 elementos do array empresas, começando pelo índice 1, para o array copia, começando pelo índice 0;
+string[] clone = empresas.Clone() as string[] - Clona o array empresas (cópia superficial/shallow).
+(cópia superficial/shallow) significa que os tipos referências são copiados as referências, ou seja, tanto a copia quanto o original irão apontar para o mesmo objeto.
+Array.Clear(clone, 1, clone.Length - 1) - vai limpar (setar o valor Default às posições) do array clone, a partir do índice 1, clone.Length - 1 elementos.
+
+        				 LISTA (ARRAY DINAMICO)
+
+List<Filme> cronologia = new List<Filme>(); - inicializa lista vazia
+cronologia.Count - número de elementos da lista
+cronologia.Capacity - tamanho alocado atualmente pela lista (ao estourar, realiza realloc com o dobro do tamanho anterior)
+cronologia.Add(esperanca); - Adiciona um único elemento no fim da lista
+cronologia.AddRange(new List<Filme> { imperio, retorno }); - adicionar vários elementos no fim da lista.
+cronologia = new List<Filme> { esperanca, imperio, retorno }; - inicialização simplificada da lista
+Imprimir todos os elementos da lista - uso de foreach
+
+cronologia.Insert(posicao - 1, ameaca); - insere, no indice posicao - 1, o elemento ameaca (e empurra os demais para frente)
+var novosFilmes = new [] { ataque, guerraClones, vinganca, rebels }; - Array implícito, pois entre {} há apenas variaveis de um mesmo tipo.
+cronologia.InsertRange(posicao - 1, novosFilmes); - Adiciona, no indice posicao - 1, os elementos pertencentes a um IEnumerable<Filme>
+cronologia.Reverse(); - Inverte a lista (último elemento passa a ser o primeiro, e o primeiro o último)
+var filmesComAtores = new List<Filme>(cronologia); - inicializa variavel com uma copia de cronologia.
+filmesComAtores.RemoveAt(posicao - 1); - Remove elemento localizado no indice fornecido como parametro
+filmesComAtores.Remove(guerraClones); - Remove primeira ocorrencia do elemento igual ao objeto passado por parametro
+trilogiaOriginal.RemoveAll((filme) => filme.Ano > 1983); - Remove todos os elementos que cumprem determinada condição (recebe como parametro um Predicate, que é um delegate);
+
+Criando uma lista ReadOnly:
+private List<Filme> filmes;
+public ReadOnlyCollection<Filme> Filmes
+{
+    get { return new ReadOnlyCollection<Filme>(filmes); }
+}
+Asism, evita que outros métodos, como loja.Filmes.RemoveAt(0) alterem a lista, a tornando apenas leitura.
+Para evitar que campos sejam alterados, pode-se retirar o Setter da propriedade correspondente.
+
+A função Hash do HashSet calcula o valor Hash baseado no próprio objeto (referencia).
+A função Hash do Dictionary calcula o valor Hash baseado na Chave.
+
+FILA
+
+Queue<string> fila = new Queue<string>();
+fila.Enqueue(veiculo);
+var proximo = fila.Peek();
+fila.TryPeek(out proximo);
+var veiculo = fila.Dequeue();
+fila.Count
+
+
+delegate x eventos
+A vantagem de usar event EventHandler no lugar de delegate para criar eventos é que os métodos associado ao evento/delegate não podem ser acionados diretamente por outros métodos.
+
+Tipos de delegados que podem ser declarados para 'enxugar' o código:
+Action<string> del -> não aceita retorno, é passado no tipo genérico o tipo do parâmetro
+Func<int, int, int> -> aceita retorno, nesse caso recebe 2 int de parametro e retorna um int.
+Predicate<int> -> parecido com o delegado Func, mas não aceita que seja passado para ele o tipo de retorno, pois é implícito que retorna bool
+
+Consulta com join usando LINQ:
+var query = 
+	from g in generos 
+	join m in musicas 
+	on g.Id equals m.GeneroId
+	select new {NomeMusica = m.Nome, NomeGenero = g.Nome};
+
+var query = 
+	from m in musicas
+	join g in generos
+	on m.GeneroId equals g.Id
+	where g.Nome.Contains("Rock")
+	select m.Nome;
+
+(string) item.Element("Diretor") - Pega o valor do primeiro node e converte para string

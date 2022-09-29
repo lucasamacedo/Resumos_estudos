@@ -1,0 +1,105 @@
+Padrão 1: Factory
+
+Parecido com o Builder, porém o Builder cria objetos complexos diferentes entre si, já a Factory cria objetos iguais. 
+Usamos a Factory quando queremos isolar o processo de criação de um objeto complexo, mas que pode mudar no futuro, entao usar Factory facilita sua troca.
+
+----
+Padrão 2: Flyweight
+
+Cria um objeto apenas uma vez, dentro do programa inteiro, para evitar criação duplicada de objetos que são identicos entre si, pois é criado um objeto e ele é reutilizado, economizando memória.
+
+Factory x FlyWeight
+Uma Factory instancia uma classe que é importante/complexa, e seu processo de criação deve ser isolado.
+Um Flyweight serve para quando temos muitas instâncias do mesmo objeto andando pelo sistema, e precisamos economizar. Para tal, o Flyweight faz uso de uma fábrica modificada, que guarda essas instâncias.
+
+Singleton x FlyWeight
+A ideia de ambos é garantir que existam apenas uma única referência para o objeto ao longo do programa.
+A diferença é que o Flyweight garante que existam apenas uma única instância de vários elementos. É um "singleton maior".
+
+
+Aplicações que faz uso de Flyweight? Consegue imaginar alguma?
+
+Aplicações gráficas geralmente fazem uso desse padrão, já que elas tem muito objeto repetido.
+
+Outro exemplo são as strings do C#. Quando escrevemos o seguinte código no programa:
+string mensagem = "Minha Mensagem";
+A máquina virtual cria uma referência para um objeto do tipo string e o armazena em memória. Se em outro ponto do código tivermos outra variável do tipo string inicializada com o mesmo texto, a máquina virtual simplesmente reutiliza a mesma instância do objeto.
+
+----
+Padrão 3: Memento
+
+Para que serve a classe Estado? Não poderíamos simplesmente guardar a classe Contrato de uma vez na lista?
+Sim, poderíamos guardar diretamente a lista de Contratos. Mas veja que isso depende do problema. No nosso caso, não tínhamos outra informação para associar ao "estado". Se tivéssemos que armazenar, por exemplo, a data que o estado foi salvo, a classe Estado faria sentido.
+As definições de padrões de projeto são geralmente as mais genéricas possíveis para dar suporte a qualquer problema. Mas você obviamente deve implementar o padrão de acordo com o seu problema.
+
+----
+Padrão 4: Interpreters
+
+Interpreter é usado sempre que temos uma árvore de expressões e queremos avaliá-las.
+
+----
+Padrão 5: Visitors
+
+Usamos esse padrão quando temos uma estrutura de dados (ex: arvore) e queremos visitar essa estrutura para realizar algum processamento em cada um dos seus nós.
+
+Situação em que poderíamos utilizar o visitor:
+A finalidade do visitor dentro do código é simplesmente percorrer toda a árvore de expressão para executar alguma lógica. Nesse capítulo, ele foi utilizado para imprimir as expressões, mas ele também poderia ser utilizado para realizar cálculos com a expressão ou qualquer outra tarefa que dependa do processamento dos nós de nossa árvore de expressão.
+Por esse motivo, os métodos do visitor normalmente tem o nome começado com Visita ao invés de Imprime (exemplo: VisitaSoma).
+
+----
+Padrão 6: Bridges
+
+Padrão que separa a responsabilidade da hierarquia de classes, e atua agindo como uma ponte entre duas interfaces (no caso, IEnviador e IMensagem).
+Usamos esse padrão quando temos uma hierarquia de classes com 2 ou mais responsabilidades, então quebramos essa hierarquia em diversas hierarquias de classes, e depois utilizamos a composição de classes para juntar essas hierarquias e compor nosso código.
+
+Você consegue ver alguma relação entre o Bridge e o Strategy? Qual?
+Na implementação do bridge que fizemos nesse capítulo, podemos ver que o bridge pode utilizar o strategy em sua implementação: a mensagem em seu método Envia utiliza o strategy para decidir qual é a estratégia de envio que será utilizada pela aplicação.
+
+----
+Padrão 7: Command
+
+Utilizo esse padrão sempre que crio uma classe que tem um comando que vai ser executado posteriormente.
+
+Qual a diferença entre Command e Strategy?
+Novamente, em termos de implementação, eles são bem parecidos, pois dependem de interfaces.
+
+A ideia do Command é abstrair um comando que deve ser executado, pois não é possível executá-lo naquele momento (pois precisamos por em uma fila ou coisa do tipo).
+Já no Strategy, a ideia é que você tenha uma estratégia (um algoritmo) para resolver um problema.
+
+----
+Padrão 8: Adapter
+
+Utilizo quando eu quero adaptar o código de uma biblioteca ou sistema legado para poder utilizá-lo dentro do meu código orientado a objetos.
+
+Quais são as diferenças que existem entre os padrões Adapter e Strategy?
+A diferença que existe entre os padrões é o propósito. No Adapter estamos adaptando a interface de um sistema antigo para que ela possa se encaixar em um sistema novo. Já no Strategy a ideia é utilizar diferentes estratégias para resolver um dado problema no sistema.
+
+Quais são as diferenças entre os padrões Adapter e Command?
+Como dito no exercício anterior, o Adapter serve para adaptar o código de um sistema legado ou biblioteca para que ele possa ser utilizado no novo sistema. Já o command serve para guardarmos um trecho de código que precisa ser executado posteriormente.
+
+----
+Padrão 9: Façade
+
+Utilizamos esse padrão quando queremos esconder a complexidade de um sistema legado que podemos utilizar em um sistema atual orientado a objetos.
+A classe façade pode se tornar muito complexa com o tempo, tendo muitos métodos, ou algum programador pode acabar colocando alguma regra de negocio dentro da façade, coisa que não deveria fazer.
+
+Singleton
+Usado para criar uma única instancia da façade, e utilizar essa única instância em todos os pontos da aplicação. Porém, usar um singleton é como se fosse uma variável global compartilhada em todo o projeto, e a programação procedural já provou que variaveis globais gera mais problema do que resolve, e por isso Singleton é muito criticado.
+Então, se você não tem certeza de como evitar os problemas das variáveis globais, você não deveria usar Singleton.
+
+Esses dois padrões devem ser utilizados com muito cuidado no projeto, mas é bom conhecê-los pois ainda é utilizado em sistemas legados.
+
+
+O que é uma Façade? Qual problema ela resolve?
+Uma façade serve como uma frente única para os serviços disponibilizados por um ou mais sub-sistemas, provendo uma maneira mais simples para consumo do mesmo.
+
+O que é o padrão Singleton? Qual problema ele resolve?
+O Singleton nos ajuda a ter uma única instância do objeto ao longo do sistema.
+
+Quais são os problemas do Singleton?
+O Singleton possibilita que o usuário crie uma instância global para determinado objeto. Isso pode ser interessante, mas tem problemas similares ao de variáveis globais no mundo procedural, afinal o objeto é único e disponível para todos.
+Se não usar com parcimônia, o seu código sofrerá problemas de manutenção.
+
+Você consegue ver alguma semelhança/diferença entre o Façade o Adapter?
+O Façade cria uma interface amigável para que clientes consigam consumir sub-sistemas (ou serviços).
+Já o Adapter tem um propósito diferente. Ele visa adaptar um conjunto de classes que já existem, para uma outra interface, que é a requerida pelo outro sistema.

@@ -1,0 +1,171 @@
+IWebHost host = new WebHostBuilder()
+                .UseKestrel()
+                .UseStartup<Startup>()
+                .Build();
+
+            host.Run();
+
+public void Configure(IApplicationBuilder app)
+        {
+            app.Run(Roteamento);
+        }
+
+        public Task Roteamento(HttpContext context)
+        {
+            var _repo = new LivroRepositorioCSV();
+
+            var caminhosAtendidos = new Dictionary<string, string>
+            {
+                { "/Livros/ParaLer", _repo.ParaLer.ToString() },
+                { "/Livros/Lendo", _repo.Lendo.ToString() },
+                { "/Livros/Lidos", _repo.Lidos.ToString() }
+            };
+            
+            if (caminhosAtendidos.ContainsKey(context.Request.Path))
+            {
+                return context.Response.WriteAsync(caminhosAtendidos[context.Request.Path]);
+            }
+            return context.Response.WriteAsync("Caminho inexistente");
+        }
+
+        public Task LivrosParaLer(HttpContext context)
+        {
+            var _repo = new LivroRepositorioCSV();
+
+            return context.Response.WriteAsync(_repo.ParaLer.ToString());
+        }
+
+Propriedades da Request:
+context.Request.Path
+
+Propriedades da Response:
+context.Response.StatusCode
+
+
+Cada rota tem que ser encapsulada em um objeto. Então, cria-se uma coleção de objetos que representam rotas
+var builder = new RouteBuilder(app);
+
+builder.MapRoute("Cadastro/NovoLivro/{nome}/{autor}", NovoLivroParaLer);
+Titulo = context.GetRouteValue("nome").ToString(), - pega o valor passado pela url da requisição no local da variavel "nome"
+
+Router Constraints - diz se atende ou não determinada rota
+
+public void Configure(IApplicationBuilder app)
+        {
+            var builder = new RouteBuilder(app);
+            builder.MapRoute("{classe}/{metodo}", RoteamentoPadrao.TratamentoPadrao);
+            //builder.MapRoute("/Livros/ParaLer", LivrosLogica.ParaLer);
+            //builder.MapRoute("/Livros/Lendo", LivrosLogica.Lendo);
+            //builder.MapRoute("/Livros/Lidos", LivrosLogica.Lidos);
+            //builder.MapRoute("Cadastro/NovoLivro/{nome}/{autor}", CadastroLogica.NovoLivro);
+            //builder.MapRoute("Livros/Detalhes/{id:int}", LivrosLogica.Detalhes);
+            //builder.MapRoute("Cadastro/ExibeFormulario", CadastroLogica.ExibeFormulario);
+            //builder.MapRoute("Cadastro/Incluir", CadastroLogica.Incluir);
+            var rotas = builder.Build();
+
+            app.UseRouter(rotas);
+        }
+    }
+
+Implementaçao de uma action sem o uso do estágio Model Binding do MVC:
+public string Contato(HttpContext context)
+{
+    var contato = new Contato
+    {
+        Nome = context.Request.Query["nome"].First(),
+        Email = context.Request.Query["email"].First()
+    }
+    return context.Response.WriteAsync($"Uma mensagem do contato {contato.Nome} com email {contato.Email} foi enviada!");
+}
+
+Com o ModelBinding:
+
+public string Contato(Contato contato)
+{
+    return $"Uma mensagem do contato {contato.Nome} com email {contato.Email} foi enviada!";
+}
+
+Como fazer uma view renderizar o html (usando classe CadastroController como exemplo): 
+public IActionResult ExibeFormulario()
+        {
+            //var html = HtmlUtils.CarregaArquivoHTML("formulario");
+            var html = new ViewResult { ViewName = "formulario" };
+            return html;
+        }
+Colocar o arquivo formulario.cshtml na pasta Views/Cadastro
+
+e, no arquivo .csproj:
+<PropertyGroup>
+	<PreserveCompilationContext>true</PreserveCompilationContext>
+</PropertyGroup>
+
+Alem disso, mudar nas propriedades do arquivo .cshtml: Copy to output directr: Copy if newer
+
+IServiceProvider serviceProvider - usado para criar injeção de dependência, pois ele é responsável por obter as instancias das classes associadas.
+
+services.AddTransient<ICatalogo, Catalogo>();
+services.AddScoped<ICatalogo, Catalogo>();
+services.AddSingleton<IRelatorio>(new Relatorio(catalogo));
+
+Controller:
+ViewData["Message"] = "Your contact page."; - armazena dados estilo dicionário
+View:
+@ViewData["Message"]
+
+Para dizer como será mapeado as tabelas para o SQL Server, abre-se nuget package console, adiciona uma migração com o comando
+Add-Migration Nome
+E para efetivamente realizar essas mudanças, utiliza-se o comando:
+Update-Database -verbose
+
+Para evitar ter que ficar usando o comando do nuget: Update-Database, podemos criar o BD automaticamente adicionando, na classe Startup.cs, no método Configure, o seguinte código, após fazer uma injeção de dependencia do tipo IServiceProvider:
+serviceProvider.GetService<ApplicationContext>().Database.EnsureCreated();
+Esse comando vê se o banco já foi criado, e caso contrario, vai procurar no modelo e no mapeamento para fazer o esquema e poder gerar o banco de dados. Porém, ele não utiliza migrations. Então, após o BD ser criado, não é possível aplicar nenhuma migração ao sistema, servindo mais para aplicações pequenas e de teste.
+Então, recomenda-se o uso do método:
+serviceProvider.GetService<ApplicationContext>().Database.Migrate();
+Que cria o BD da mesma forma, utilizando migrações, e permite adicionar novas migrações.
+
+Lendo arquivo JSON:
+var json = File.ReadAllText("livros.json");
+var livros = JsonConvert.DeserializeObject<List<Livro>>(json);
+
+class Livro
+    {
+        public string Codigo { get; set; }
+        public string Nome { get; set; }
+        public decimal Preco { get; set; }
+    }
+
+Usando jQuery na View cshtml: símbolo de $
+exemplo: 
+@section Scripts
+{ 
+    <script type="text/javascript">
+        function clickIncremento(btn) {
+            var item = $(btn).attr('item-id');
+        }
+    </script>
+}
+
+Usando Ajax com jQuery:
+$.ajax({
+	url: '/pedido/updatequantidade',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(data)
+});
+
+contexto.Set<T>() - permite que acesse a entidade em questão
+
+evento onblur do html é acionado quando o elemento perde o foco
+
+[DataMember]
+        public decimal Subtotal => Quantidade * PrecoUnitario;
+É equivalente a:
+[DataMember]
+public decimal Subtotal
+{
+    get 
+    {
+        return Quantidade * PrecoUnitario;
+    }
+}

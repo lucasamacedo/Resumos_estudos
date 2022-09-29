@@ -1,0 +1,4 @@
+Construir a API:
+Controlador herdar da classe ControllerBase, que não tem  suporte a View
+Também, deve ter a marcação [ApiController]
+

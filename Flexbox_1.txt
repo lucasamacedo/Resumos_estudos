@@ -1,0 +1,26 @@
+Melhores sites para consulta:
+https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+https://developer.mozilla.org/pt-BR/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox
+
+Considerando o valor padrão de flex-direction: row ->
+main axis: x
+cross axis: y
+
+se mudar flex-direction:column, os eixos trocam de lugar
+
+Propriedades que levam em conta:
+main axis:
+justify-content: space-between
+
+cross axis:
+align-items: center;
+
+
+Comando para rodar o CSS apenas para mobile:
+
+@media(max-width: 768px){...}
+Width escolhido ao aumentar e ver em qual tamanho de largura o layout "quebra"
+
+Por padrão, cada flex-item tem uma ordem 0, então se por order: -1, o elemento aparecerá primeiro.
+
+flex-grow: 1; -> Faz com que o Flex Item associado "cresça" o tamanho qeu sobrou.

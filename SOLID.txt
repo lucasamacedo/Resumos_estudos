@@ -1,0 +1,52 @@
+SRP (Single Responsibility Principle):
+	DRY - Dont Repeat Yourself - Todo pedaço de conhecimento em um sistema deve possuir uma 		representação única, inequívoca e confiável.
+
+	Métodos devem ter uma única responsabilidade
+
+	Classes também devem ter uma única responsabilidade
+
+	Responsabilidade método é DIFERENTE de responsabilidade de classe
+
+	Single Source of Truth - Se todos estiverem bem coesos, é em determinado lugar que vou 	buscar a informação, fazer alguma modificação, etc.
+
+	código repetido é uma forma específica de conhecimento repetido (DRY)
+	repetição de código é ruim porque impacta nos custos de manutenção e aumenta sua dívida 	técnica
+	repetição de código pode indicar que métodos e classes possuem muitas responsabilidades
+	métodos e classes devem ter 1 única responsabilidade! Só assim serão coesos
+	a responsabilidade de um método é executar uma única função
+	a responsabilidade de uma classe é responder a mudanças originadas por uma única 	pessoa, função ou área de negócio (agente de mudança)
+	essas idéias foram sintetizadas no Princípio da Responsabilidade Única (SRP) cunhado 	por Robert Martin
+
+DIP (Dependency Inversion Principle)
+	Criamos abstrações para melhorar a qualidade do acoplamento
+	Explicitamos as dependências no construtor para desacoplar
+
+	Diferença entre DIP e Injeçao de dependência:
+	Injeção ta associado a quem vai criar a dependência para você
+	DIP ta associado com a qualidade da dependência, para criar um tipo mais estável, e 	melhorar a qualidade do acoplamento
+	Inversão de controle: Está associado à direção da dependência
+
+
+Acoplamentos
+Acoplamento diz respeito à dependência entre dois tipos. Num sistema orientado a objetos os acoplamentos são inevitáveis. O que devemos fazer é cuidar de sua qualidade. Acoplamentos bons são aqueles para tipos estáveis (que não vão mudar ou tem alta probabilidade de não mudar). 	Candidatos a tipos estáveis são aqueles que fazem parte da plataforma .NET e de APIs muito 	usadas. Acoplamentos ruins são aqueles para tipos instáveis. Exemplos dessa categoria são os 	tipos criados especificamente para nossa aplicação e principalmente implementações para mecanismos específicos (no nosso exemplo o LeilaoDaoComEfCore).
+
+OCP (Open/Closed Principle)
+	Mantenha sua aplicação fechada para mudanças, mas aberta para extensões.
+	código repetido é um risco para o negócio
+	crie uma camada de serviços para separar as funcionalidades de sua aplicação (Service 		Layer)
+	minimize a alteração de código que está pronto (fechado) mas garanta que seu projeto 		continue estensível (aberto); esse é o terceiro princípio S.O.L.I.D. e é 		chamado de Open/Closed Principle
+	o padrão Decorator é utilizado para aplicar o OCP na prática: uma nova classe é criada 		que apenas decora uma existente
+
+
+
+Princípios e Conceitos
+Crie abstrações e dependa delas para melhorar a qualidade do acoplamento. Esse hábito é formalizado através do Princípio da Inversão das Dependências (DIP), a letra D na sigla S.O.L.I.D.
+Explicite as dependências de uma classe. Uma das maneiras de fazer isso é usando parâmetros do construtor. Desse jeito aplicamos um conceito chamado Injeção de Dependência (DI). AspNet Core ajuda a injetar as dependências que foram vinculadas no método ConfigureServices() da classe Startup e assim dizemos que o AspNet Core tem como uma de suas principais funcionalidades ser um container de injeção de dependências.
+Quando a classe dependente deixa de resolver as dependências diretamente e cede esse controle para outrém temos o uso do conceito Inversão de Controle (IoC).
+
+LSP (Liskov Substitution Principle)
+	Se você está implementando alguma abstração, você precisa cumprir todas as promessas 	que foram definidas nos ancestrais
+
+ISP (Interface Segregation Principle)
+	Princípio de segregação de interfaces, criar interfaces bem granulares, para manter a 	flexibilidade e a estabilidade do sistema
+

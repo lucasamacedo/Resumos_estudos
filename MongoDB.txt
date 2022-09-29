@@ -1,0 +1,228 @@
+{
+	"nome": "Felipe",
+	"data_nascimento": new Date(1994,02,26),
+	"curso": {
+		"nome": "Sistemas de Informação"
+	},
+	"notas": [10.0, 9.0, 4.5],
+	"habilidades": [
+		{
+			"nome": "inglês",
+			"nivel": "avançado"
+		},
+		{
+			"nome": "taekwondo",
+			"nivel": "básico"
+		}
+	]
+}
+
+db.alunos.insert({
+	"nome": "Julio",
+	"data_nascimento": new Date(1972, 08, 30),
+	"curso": {
+		"nome": "Medicina"
+	},
+	"habilidades": [
+		{
+			"nome": "inglês",
+			"nível": "avançado"
+		}
+	]
+})
+
+db.alunos.insert({
+	"nome": "Alberto",
+	"data_nascimento": new Date(1972, 09, 30),
+	"curso": {
+		"nome": "Engenharia Química"
+	},
+	"habilidades": [
+		{
+			"nome": "inglês",
+			"nível": "intermediário"
+		}
+	]
+})
+
+db.alunos.insert({
+	"nome": "Daniela",
+	"data_nascimento": new Date(1995, 09, 30),
+	"curso": {
+		"nome": "Moda"
+	},
+	"habilidades": [
+		{
+			"nome": "alemão",
+			"nível": "básico"
+		}
+	]
+})
+db.alunos.find(
+	{
+		nome: "Felipe"
+	}
+)
+db.alunos.insert(
+	{
+		nome: "Felipe",
+		curso: {
+			nome: "Matemática"
+		}
+	}
+)
+db.alunos.find(
+	{
+		"habilidades.nome": "inglês"
+	}
+)
+db.alunos.find(
+	{
+		"curso.nome": "Sistemas de informação"
+	}
+)
+db.alunos.find({
+$or: [
+	{"curso.nome": "Sistemas de informação"},
+	{"curso.nome": "Engenharia Química"},
+	{"curso.nome": "Moda"}
+],
+	"nome": "Daniela"
+})
+
+db.alunos.find({
+	"curso.nome": {
+		$in: ["Sistemas de Informação", "Engenharia Química"]
+	}
+})
+db.alunos.insert({
+	nome: "Fernando",
+	data_nascimento: new Date(1994, 03, 26),
+	notas: [10, 4.5, 7],
+	curso: {
+		nome: "Sistemas de Informação"
+	}
+})
+db.alunos.find({"curso.nome": "Sistemas de Informação"}).pretty()
+db.alunos.update(
+	{"curso.nome": "Sistemas de Informação"},
+	{
+		$set: {"curso.nome": "Sistemas de informação"}
+	}
+)
+
+db.alunos.update(
+	{"curso.nome": "Sistemas de informação"},
+	{
+		$set: {"curso.nome": "Sistemas de Informação"}
+	},{
+		multi: true
+	}
+)
+db.alunos.update(
+	{"_id": ObjectId("611281c3f51b51b1e7999002")},
+	{
+		$push: {notas: 8.5}
+	},{
+		multi: true
+	}
+)
+db.alunos.update(
+	{"_id": ObjectId("611281c3f51b51b1e7999002")},
+	{
+		$push: {
+			notas: { $each: [8.5, 3] }
+		}
+	}
+)
+db.alunos.update(
+	{"_id": ObjectId("6112743ef51b51b1e7998ffe")},
+	{
+		$set: {
+			"nome": "Lucas",
+			"data_nascimento": new Date(1996, 9, 10),
+			"curso": { nome: "Ciência da Computação" },
+			"habilidades": [
+				{
+					"nome": "inglês",
+					"nível": "intermediário"
+				}
+				
+			]
+		}
+	}
+)
+
+db.alunos.find(
+{
+	"notas": 8.5
+})
+
+db.alunos.find({
+	"notas": { $gt: 5 }
+})
+db.alunos.insert({
+	nome: "André",
+	data_nascimento: new Date(1991, 01, 25),
+	curso: {
+		nome: "Matemática"
+	},
+	notas: [7, 5, 9, 4.5]
+})
+db.alunos.insert({
+	nome: "Lúcia",
+	data_nascimento: new Date(1984, 07, 17),
+	curso: {
+		nome: "Matemática"
+	},
+	notas: [8, 9.5, 10]
+})
+db.alunos.find().sort({"nome": 1})
+db.alunos.find({
+	"notas": { $lt: 4 }
+})
+db.alunos.find({
+	"curso.nome": "Sistemas de Informação"
+}).limit(1)
+db.alunos.find().sort({"nome": 1})
+db.alunos.find({
+	"nome": "Felipe"
+}).pretty()
+
+db.alunos.update(
+	{"_id" : ObjectId("611281c3f51b51b1e7999002")},
+	{
+		$set: {
+			localizacao: {
+				endereco: "Rua Vergueiro, 3185",
+				cidade: "Sao Paulo",
+				pais: "Brasil",
+				coordinates: [-23.588213, -46.632356],
+				type: "Point"
+			}
+		},
+	}
+)
+
+db.alunos.aggregate([
+{
+	$geoNear: {
+		near:{
+			coordinates: [-23.5640265,-46.6527128],
+			type: "Point"
+		},
+		distanceField: "distancia.calculada",
+		spherical: true
+	}
+},
+{
+	$limit: 4
+},
+{
+	$skip: 1
+}
+])
+
+db.alunos.createIndex({
+	localizacao: "2dsphere"
+})
